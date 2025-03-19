@@ -1,2 +1,1 @@
-# DBMS-Group-Leal
-LEADER: Leal
+francine jean llarenas 
