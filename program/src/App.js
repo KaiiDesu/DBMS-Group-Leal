@@ -21,7 +21,7 @@ function App() {
           <div className="product-card" key={i}>
             <img src="https://via.placeholder.com/150" alt="Product" />
             <h3>Lana Airship</h3>
-            <p>SRP: ₱58</p>
+            <p>SRP: ₱10000</p>
             <div className="buttons">
               <button className="compare-btn">+ Add to compare</button>
               <button className="buy-btn">Buy now</button>
