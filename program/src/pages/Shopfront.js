@@ -19,16 +19,18 @@ function Shopfront() {
     const fetchProducts = async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+        .select('*'); // No ordering if 'created_at' doesn't exist
+    
       if (error) {
-        console.error('Error fetching products:', error);
+        console.error('❌ Error fetching products:', error);
       } else {
+        console.log('✅ Fetched products:', data);
         setProducts(data);
       }
     };
+    
 
+  
     fetchProducts();
   }, []);
 
@@ -69,7 +71,7 @@ function Shopfront() {
             <h3>{item.name}</h3>
             <p>SRP: ₱{item.price}</p>
             {item.is_sold_out ? (
-              <p style={{ color: 'red', fontWeight: 'bold' }}>SOLD OUT</p>
+              <p style={{ color:  '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
             ) : (
               <div className="buttons">
                 <button className="compare-btn">+ Add to compare</button>

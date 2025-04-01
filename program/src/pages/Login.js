@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Login.css';
 import logo from '../pages/logovape.png';
-import { supabase } from '../supabaseClient'; // 👈 import supabase client
+import { supabase } from '../supabaseClient';
 
 function Login() {
   const [formType, setFormType] = useState('signup');
@@ -12,34 +12,52 @@ function Login() {
     password: ''
   });
 
+  const resetForm = () => {
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: ''
+    });
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleToggleFormType = () => {
+    resetForm(); // 👈 Reset input fields when toggling form type
+    setFormType((prevType) => (prevType === 'signup' ? 'login' : 'signup'));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     const { email, password, firstName, lastName } = formData;
-  
+
     if (formType === 'signup') {
-      // Step 1: Sign up user with Supabase Auth
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName
+          }
+        }
       });
-  
+
       if (signUpError) {
         alert('Signup failed: ' + signUpError.message);
         return;
       }
-  
-      const userId = signUpData.user?.id;
+
+      const userId = signUpData.user?.id || signUpData.session?.user?.id;
       if (!userId) {
         alert('Signup successful but user ID not found. Please confirm your email.');
+        resetForm();
         return;
       }
-  
-      // Step 2: Insert user profile info into the `profiles` table
+
       const { error: profileError } = await supabase.from('profiles').insert([
         {
           id: userId,
@@ -48,29 +66,30 @@ function Login() {
           email: email
         }
       ]);
-  
+
       if (profileError) {
         console.error('Error inserting profile:', profileError);
         alert('Signup succeeded but failed to save profile: ' + profileError.message);
       } else {
         alert('Signup successful! Please check your email to confirm your account.');
       }
+
+      resetForm(); // ✅ clear fields after sign up
     } else {
-      // LOGIN
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-  
+
       if (loginError) {
         alert('Login failed: ' + loginError.message);
       } else {
         alert('Login successful!');
-        window.location.href = '/shopfront'; // Redirect to shopfront
+        resetForm(); // ✅ clear fields after login
+        window.location.href = '/shopfront';
       }
     }
   };
-  
 
   return (
     <div className="login-container">
@@ -79,7 +98,7 @@ function Login() {
       <form className="login-form" onSubmit={handleSubmit}>
         <p className="switch-text">
           {formType === 'signup' ? 'Have an account? ' : "Don't have an account? "}
-          <span onClick={() => setFormType(formType === 'signup' ? 'login' : 'signup')}>
+          <span onClick={handleToggleFormType}>
             {formType === 'signup' ? 'Login' : 'Register'}
           </span>
         </p>
