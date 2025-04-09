@@ -3,13 +3,12 @@ import './Login.css';
 import logo from '../pages/logovape.png';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import Popup from '../components/Popup';
 
 function SellerLogin() {
   const [formType, setFormType] = useState('login');
   const [step, setStep] = useState(1);
   const [cooldown, setCooldown] = useState(0);
-  const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -20,6 +19,9 @@ function SellerLogin() {
     confirmPassword: ''
   });
 
+  const [popupMsg, setPopupMsg] = useState('');
+  const [redirectAfterPopup, setRedirectAfterPopup] = useState(false);
+  const navigate = useNavigate();
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
 
   useEffect(() => {
@@ -48,43 +50,33 @@ function SellerLogin() {
     setCooldown(0);
   };
 
-  const toggleForm = () => {
-    resetForm();
-    setFormType(formType === 'signup' ? 'login' : 'signup');
-  };
-
   const handleForgotFlow = async (e) => {
     e.preventDefault();
     const { email, otp, newPassword, confirmPassword } = formData;
 
     if (step === 1) {
-      // Check if this is a seller account
       const { data: seller, error: checkError } = await supabase
         .from('sellers')
         .select('id')
         .eq('email', email)
         .single();
-    
-      if (checkError || !seller) {
-        return alert('This email does not belong to a registered seller account.');
-      }
-    
-      // Then send reset email
+
+      if (checkError || !seller) return setPopupMsg('This email does not belong to a registered seller account.');
+
       const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) return alert('Error sending reset email: ' + error.message);
-    
+      if (error) return setPopupMsg('Error sending reset email: ' + error.message);
+
       setStep(2);
       setCooldown(30);
-    }
-     else if (step === 2) {
+    } else if (step === 2) {
       const { error } = await supabase.auth.verifyOtp({ email, token: otp, type: 'email' });
-      if (error) return alert('Invalid or expired code');
+      if (error) return setPopupMsg('Invalid or expired code');
       setStep(3);
     } else if (step === 3) {
-      if (newPassword !== confirmPassword) return alert("Passwords don't match.");
+      if (newPassword !== confirmPassword) return setPopupMsg("Passwords don't match.");
       const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) return alert('Failed to update password: ' + error.message);
-      alert('Password successfully updated!');
+      if (error) return setPopupMsg('Failed to update password: ' + error.message);
+      setPopupMsg('Password successfully updated!');
       setFormType('login');
       resetForm();
     }
@@ -93,66 +85,62 @@ function SellerLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password, firstName, lastName } = formData;
-  
+
     if (formType === 'signup') {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin, // optional redirect
+          emailRedirectTo: window.location.origin,
           data: { first_name: firstName, last_name: lastName }
         }
       });
-  
-      if (signUpError) return alert('Signup failed: ' + signUpError.message);
-  
-      const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+
+      if (signUpError) return setPopupMsg('Signup failed: ' + signUpError.message);
+
+      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
           const userId = session.user.id;
-  
           const { error: sellerError } = await supabase.from('sellers').insert([
-            {
-              id: userId,
-              email,
-              first_name: firstName,
-              last_name: lastName
-            }
+            { id: userId, email, first_name: firstName, last_name: lastName }
           ]);
-  
           if (sellerError) {
-            console.error('Seller insert error:', sellerError);
-            alert('Signup succeeded but seller profile save failed.');
+            console.error('Insert error:', sellerError);
+            setPopupMsg('Signup succeeded but saving seller profile failed.');
           } else {
-            alert('Signup successful! Please check your email.');
+            setPopupMsg('Signup successful! Check your email.');
           }
-  
-          listener?.subscription?.unsubscribe(); // Clean up the listener
+          authListener?.subscription?.unsubscribe();
         }
       });
-  
+
       resetForm();
     } else {
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert('Login failed: ' + error.message);
-  
+      if (error) return setPopupMsg('Login failed: ' + error.message);
+
       const user = authData.user;
       const { data: seller, error: sellerError } = await supabase
         .from('sellers')
         .select('*')
         .eq('id', user.id)
         .single();
-  
+
       if (!seller || sellerError) {
-        alert('This is not a seller account.');
-        return;
+        return setPopupMsg('This is not a seller account.');
       }
-  
-      alert('Login successful!');
-      resetForm();
-      window.location.href = '/seller-dashboard';
+
+      setPopupMsg('Login successful!');
+      setRedirectAfterPopup(true); // redirect after popup is confirmed
     }
   };
-  
+
+  const handlePopupClose = () => {
+    setPopupMsg('');
+    if (redirectAfterPopup) {
+      navigate('/seller-dashboard');
+    }
+  };
 
   const handleOTPInput = (e, index) => {
     const value = e.target.value.replace(/\D/g, '');
@@ -160,7 +148,6 @@ function SellerLogin() {
     updated[index] = value;
     setOtpDigits(updated);
     setFormData({ ...formData, otp: updated.join('') });
-
     if (value && index < 5) {
       const next = document.getElementById(`otp-${index + 1}`);
       if (next) next.focus();
@@ -190,6 +177,8 @@ function SellerLogin() {
       </div>
 
       <img src={logo} alt="Logo" className="login-logo" />
+      {popupMsg && <Popup message={popupMsg} onClose={handlePopupClose} />}
+
       <form onSubmit={formType === 'forgot' ? handleForgotFlow : handleSubmit} className="login-form">
         <p className="switch-text">
           {formType === 'signup' ? 'Have an account? ' : formType === 'forgot' ? 'Back to ' : "Don't have an account? "}
@@ -231,41 +220,31 @@ function SellerLogin() {
         {formType === 'forgot' && step === 2 && (
           <>
             <div className="otp-header">
-              <div className="otp-icon">
-                <img src="./senticon.png" alt="Send" />
-              </div>
+              <div className="otp-icon"><img src="./senticon.png" alt="Send Icon" /></div>
               <h2>OTP Verification</h2>
-              <p className="otp-subtitle">Enter the verification code we just sent to your email address</p>
+              <p className="otp-subtitle">Enter the verification code sent to your email</p>
             </div>
 
             <div className="otp-wrapper">
               {[...Array(6)].map((_, i) => (
-                <input
-                  key={i}
-                  id={`otp-${i}`}
-                  type="text"
-                  maxLength="1"
-                  className="otp-box"
-                  value={otpDigits[i]}
-                  onChange={(e) => handleOTPInput(e, i)}
-                  onKeyDown={(e) => handleOTPKeyDown(e, i)}
-                  onPaste={handleOTPPaste}
-                  autoComplete="off"
-                />
+                <input key={i} id={`otp-${i}`} type="text" maxLength="1" className="otp-box"
+                  value={otpDigits[i]} onChange={(e) => handleOTPInput(e, i)}
+                  onKeyDown={(e) => handleOTPKeyDown(e, i)} onPaste={handleOTPPaste} autoComplete="off" />
               ))}
             </div>
 
             <p className="resend-text">
-              Didn’t receive the email? Check spam.{' '}
-              <span className="resend-link"
-                onClick={async () => {
-                  if (cooldown > 0) return alert(`Resend failed: wait ${cooldown}s`);
-                  const { error } = await supabase.auth.resetPasswordForEmail(formData.email);
-                  if (error) return alert("Resend failed: " + error.message);
-                  setCooldown(30);
-                  alert("Reset email resent!");
-                }}
-              >Resend</span>
+              Didn’t receive the email?{' '}
+              <span className="resend-link" onClick={async () => {
+                if (cooldown > 0) return setPopupMsg(`Resend failed: wait ${cooldown}s`);
+                const { data: seller, error: checkError } = await supabase
+                  .from('sellers').select('id').eq('email', formData.email).single();
+                if (checkError || !seller) return setPopupMsg('This email does not belong to a registered seller account.');
+                const { error } = await supabase.auth.resetPasswordForEmail(formData.email);
+                if (error) return setPopupMsg("Resend failed: " + error.message);
+                setCooldown(30);
+                setPopupMsg("Reset email resent!");
+              }}>Resend</span>
             </p>
           </>
         )}
@@ -286,9 +265,7 @@ function SellerLogin() {
             <span onClick={() => {
               resetForm();
               setFormType('forgot');
-            }}>
-              Forgot password?
-            </span>
+            }}>Forgot password?</span>
           </p>
         )}
 
