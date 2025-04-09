@@ -58,11 +58,25 @@ function SellerLogin() {
     const { email, otp, newPassword, confirmPassword } = formData;
 
     if (step === 1) {
+      // Check if this is a seller account
+      const { data: seller, error: checkError } = await supabase
+        .from('sellers')
+        .select('id')
+        .eq('email', email)
+        .single();
+    
+      if (checkError || !seller) {
+        return alert('This email does not belong to a registered seller account.');
+      }
+    
+      // Then send reset email
       const { error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) return alert('Error sending reset email: ' + error.message);
+    
       setStep(2);
       setCooldown(30);
-    } else if (step === 2) {
+    }
+     else if (step === 2) {
       const { error } = await supabase.auth.verifyOtp({ email, token: otp, type: 'email' });
       if (error) return alert('Invalid or expired code');
       setStep(3);
