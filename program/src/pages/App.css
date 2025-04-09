@@ -51,7 +51,7 @@
 /* Product Grid Section */
 .products-section {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* ← Exactly 3 per row */
+  grid-template-columns: repeat(5, 1fr); /* ← Exactly 3 per row */
   gap: 30px;
   padding: 40px 20px;
   background-color: #000054;

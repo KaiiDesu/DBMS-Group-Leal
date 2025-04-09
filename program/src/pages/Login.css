@@ -90,3 +90,147 @@ button {
 button:hover {
   background-color: #ddd;
 }
+
+
+.seller-redirect {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+}
+
+.seller-redirect button {
+  background-color: #ffffff;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.seller-redirect button:hover {
+  background-color: #e0e0e0;
+}
+
+.seller-redirect {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+}
+
+.seller-redirect button {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.seller-redirect button:hover {
+  background-color: white;
+  color: black;
+}
+
+
+.otp-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.otp-box {
+  width: 40px;
+  height: 50px;
+  font-size: 24px;
+  text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  background-color: white;
+  color: black;
+}
+
+.otp-box:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 4px #6c63ff;
+}
+
+.resend-text {
+  color: #aaa;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.resend-link {
+  color: #6c63ff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.otp-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.otp-icon {
+  background-color: #0a0544;
+  color: white;
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  font-size: 30px;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+}
+
+.otp-subtitle {
+  color: #ccc;
+  font-size: 14px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+.otp-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.otp-icon {
+  background-color: #010057;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.otp-icon img {
+  width: 40px;
+  height: 40px;
+}
+
+.otp-subtitle {
+  color: #ccc;
+  font-size: 14px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+
+
+.forgot-text span {
+  color: #ccc;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.forgot-text span:hover {
+  color: #fff;
+}

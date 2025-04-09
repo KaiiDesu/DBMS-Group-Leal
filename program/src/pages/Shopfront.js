@@ -15,24 +15,22 @@ function Shopfront() {
   };
 
   // Fetch products from Supabase
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*'); // No ordering if 'created_at' doesn't exist
-    
-      if (error) {
-        console.error('❌ Error fetching products:', error);
-      } else {
-        console.log('✅ Fetched products:', data);
-        setProducts(data);
-      }
-    };
-    
+useEffect(() => {
+  const fetchProducts = async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, name, price, image_url, description'); // Explicitly selecting all needed fields
 
-  
-    fetchProducts();
-  }, []);
+    if (error) {
+      console.error('❌ Error fetching products:', error);
+    } else {
+      console.log('✅ Fetched products:', data);
+      setProducts(data);
+    }
+  };
+
+  fetchProducts();
+}, []);
 
   return (
     <div className="App">
@@ -65,21 +63,26 @@ function Shopfront() {
 
       {/* Product Grid Section */}
       <section className="products-section">
-        {products.map((item) => (
-          <div className="product-card" key={item.id}>
-            <img src={item.image_url} alt={item.name} />
-            <h3>{item.name}</h3>
-            <p>SRP: ₱{item.price}</p>
-            {item.is_sold_out ? (
-              <p style={{ color:  '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
-            ) : (
-              <div className="buttons">
-                <button className="compare-btn">+ Add to compare</button>
-                <button className="buy-btn">Buy now</button>
-              </div>
-            )}
-          </div>
-        ))}
+      {products.map((item) => (
+        <div className="product-card" key={item.id}>
+          <img src={item.image_url} alt={item.name} />
+          <h3>{item.name}</h3>
+          <p>SRP: ₱{item.price}</p>
+          
+          {/* 👇 Add this line to show description */}
+          <p className="product-description">{item.description}</p>
+          
+          {item.is_sold_out ? (
+            <p style={{ color:  '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
+          ) : (
+      <div className="buttons">
+        <button className="compare-btn">+ Add to compare</button>
+        <button className="buy-btn">Buy now</button>
+      </div>
+    )}
+  </div>
+))}
+
       </section>
 
       {/* Sidebar Drawer Menu */}
