@@ -98,22 +98,7 @@ function SellerLogin() {
 
       if (signUpError) return setPopupMsg('Signup failed: ' + signUpError.message);
 
-      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          const userId = session.user.id;
-          const { error: sellerError } = await supabase.from('sellers').insert([
-            { id: userId, email, first_name: firstName, last_name: lastName }
-          ]);
-          if (sellerError) {
-            console.error('Insert error:', sellerError);
-            setPopupMsg('Signup succeeded but saving seller profile failed.');
-          } else {
-            setPopupMsg('Signup successful! Check your email.');
-          }
-          authListener?.subscription?.unsubscribe();
-        }
-      });
-
+      setPopupMsg('Signup successful! Please check your email to complete registration.');
       resetForm();
     } else {
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });

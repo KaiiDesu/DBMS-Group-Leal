@@ -10,7 +10,7 @@ function Popup({ message, onClose }) {
           <h2 className="popup-message">{message}</h2>
           <div className="popup-line" />
         </div>
-        <button className="popup-button" onClick={onClose}>Okay!</button>
+        <button className="popup-button" onClick={onClose}>Proceed</button>
       </div>
     </div>
   );

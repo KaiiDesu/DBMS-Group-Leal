@@ -9,6 +9,11 @@ function Login() {
   const [formType, setFormType] = useState('login');
   const [step, setStep] = useState(1);
   const [cooldown, setCooldown] = useState(0);
+  const [redirectAfterPopup, setRedirectAfterPopup] = useState(false);
+  const [popupMsg, setPopupMsg] = useState('');
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -18,12 +23,6 @@ function Login() {
     newPassword: '',
     confirmPassword: ''
   });
-
-
-  const [popupMsg, setPopupMsg] = useState('');
-  const [redirectAfterPopup, setRedirectAfterPopup] = useState(false);
-  const navigate = useNavigate();
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -37,10 +36,6 @@ function Login() {
       window.location.href = '/shopfront';
     }
   }, [popupMsg, redirectAfterPopup]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const resetForm = () => {
     setFormData({
@@ -57,9 +52,13 @@ function Login() {
     setCooldown(0);
   };
 
-  const toggleForm = () => {
+  const switchForm = (type) => {
     resetForm();
-    setFormType(formType === 'signup' ? 'login' : 'signup');
+    setFormType(type);
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleForgotFlow = async (e) => {
@@ -73,9 +72,7 @@ function Login() {
         .eq('email', email)
         .single();
 
-      if (checkError || !customer) {
-        return setPopupMsg('This email does not belong to a registered customer account.');
-      }
+      if (checkError || !customer) return setPopupMsg('This email does not belong to a registered customer account.');
 
       const { error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) return setPopupMsg('Error sending reset email: ' + error.message);
@@ -95,8 +92,7 @@ function Login() {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) return setPopupMsg('Failed to update password: ' + error.message);
       setPopupMsg('Password successfully updated!');
-      setFormType('login');
-      resetForm();
+      switchForm('login');
     }
   };
 
@@ -112,6 +108,7 @@ function Login() {
       });
 
       if (signUpError) return alert('Signup failed: ' + signUpError.message);
+
       const userId = signUpData.user?.id || signUpData.session?.user?.id;
       if (!userId) {
         alert('Signup successful but user ID not found. Check your email.');
@@ -124,15 +121,15 @@ function Login() {
 
       if (profileError) {
         console.error('Profile insert error:', profileError);
-        alert('Signup succeeded but profile save failed.');
+        alert('Sign-up succeeded but profile save failed.');
       } else {
-        setPopupMsg('Signup successful! Check your email.');
+        setPopupMsg('Sign-up successful! Please check your email to complete registration.');
       }
 
       resetForm();
     } else {
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert('Login failed: ' + error.message);
+      if (error) return setPopupMsg('Login failed: ' + error.message);
 
       const user = authData.user;
       const { data: profile, error: profileError } = await supabase
@@ -141,10 +138,7 @@ function Login() {
         .eq('id', user.id)
         .single();
 
-      if (!profile || profileError) {
-        setPopupMsg('This is not a customer account.');
-        return;
-      }
+      if (!profile || profileError) return setPopupMsg('This is not a customer account.');
 
       setPopupMsg('Login successful!');
       setRedirectAfterPopup(true);
@@ -158,17 +152,16 @@ function Login() {
     updated[index] = value;
     setOtpDigits(updated);
     setFormData({ ...formData, otp: updated.join('') });
-
     if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
-      if (nextInput) nextInput.focus();
+      const next = document.getElementById(`otp-${index + 1}`);
+      if (next) next.focus();
     }
   };
 
   const handleOTPKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`);
-      if (prevInput) prevInput.focus();
+      const prev = document.getElementById(`otp-${index - 1}`);
+      if (prev) prev.focus();
     }
   };
 
@@ -179,10 +172,6 @@ function Login() {
     paste.forEach((val, idx) => updated[idx] = val);
     setOtpDigits(updated);
     setFormData({ ...formData, otp: updated.join('') });
-
-    const lastIndex = paste.length - 1;
-    const lastInput = document.getElementById(`otp-${lastIndex}`);
-    if (lastInput) lastInput.focus();
   };
 
   return (
@@ -197,15 +186,15 @@ function Login() {
         <Popup
           message={popupMsg}
           onClose={() => setPopupMsg('')}
-          buttonText={redirectAfterPopup ? 'Continue to Shop' : 'Close'}
+          buttonText={redirectAfterPopup ? 'Continue' : 'Okay'}
         />
       )}
 
       <form onSubmit={formType === 'forgot' ? handleForgotFlow : handleSubmit} className="login-form">
         <p className="switch-text">
           {formType === 'signup' ? 'Have an account? ' : formType === 'forgot' ? 'Back to ' : "Don't have an account? "}
-          <span onClick={toggleForm}>
-            {formType === 'signup' ? 'Login' : formType === 'forgot' ? 'Login' : 'Register'}
+          <span onClick={() => switchForm(formType === 'signup' || formType === 'forgot' ? 'login' : 'signup')}>
+            {formType === 'signup' || formType === 'forgot' ? 'Login' : 'Register'}
           </span>
         </p>
 
@@ -236,16 +225,65 @@ function Login() {
           </div>
         )}
 
-        {/* You can insert the OTP and forgot password steps here if needed */}
+        {formType === 'forgot' && step === 2 && (
+          <>
+            <div className="otp-header">
+              <div className="otp-icon">
+                <img src="./senticon.png" alt="Send Icon" />
+              </div>
+              <h2>OTP Verification</h2>
+              <p className="otp-subtitle">Enter the verification code sent to your email</p>
+            </div>
+
+            <div className="otp-wrapper">
+              {otpDigits.map((digit, i) => (
+                <input
+                  key={i}
+                  id={`otp-${i}`}
+                  type="text"
+                  maxLength="1"
+                  className="otp-box"
+                  value={digit}
+                  onChange={(e) => handleOTPInput(e, i)}
+                  onKeyDown={(e) => handleOTPKeyDown(e, i)}
+                  onPaste={handleOTPPaste}
+                  autoComplete="off"
+                />
+              ))}
+            </div>
+
+            <p className="resend-text">
+              Didn’t receive the email?{' '}
+              <span className="resend-link" onClick={async () => {
+                if (cooldown > 0) return setPopupMsg(`Resend failed: wait ${cooldown}s`);
+                const { data: customer, error: checkError } = await supabase
+                  .from('profiles').select('id').eq('email', formData.email).single();
+                if (checkError || !customer) return setPopupMsg('This email does not belong to a registered customer account.');
+                const { error } = await supabase.auth.resetPasswordForEmail(formData.email);
+                if (error) return setPopupMsg("Resend failed: " + error.message);
+                setCooldown(30);
+                setPopupMsg("Reset email resent!");
+              }}>
+                Resend
+              </span>
+            </p>
+          </>
+        )}
+
+        {formType === 'forgot' && step === 3 && (
+          <>
+            <div className="input-wrapper">
+              <input type="password" name="newPassword" placeholder="New Password" value={formData.newPassword} onChange={handleChange} required />
+            </div>
+            <div className="input-wrapper">
+              <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} required />
+            </div>
+          </>
+        )}
 
         {formType === 'login' && (
           <p className="forgot-text">
-            <span onClick={() => {
-              resetForm();
-              setFormType('forgot');
-            }}>
-              Forgot password?
-            </span>
+            <span onClick={() => switchForm('forgot')}>Forgot password?</span>
           </p>
         )}
 

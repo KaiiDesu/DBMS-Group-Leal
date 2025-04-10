@@ -89,6 +89,7 @@ function Shopfront() {
                 <button className="buy-btn">Buy now</button>
               </div>
             )}
+           
           </div>
         ))}
       </section>

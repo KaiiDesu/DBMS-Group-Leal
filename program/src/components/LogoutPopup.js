@@ -7,10 +7,10 @@ function LogoutPopup({ onConfirm, onCancel }) {
       <div className="logout-popup-box">
       <div className="popup-line" />
         <h3 className="logout-title">Are you sure you want to log out?</h3>
-        <div className="popup-line" />
+        <div className="popup-line-2" />
         <div className="logout-btns">
           <button className="cancel-btn" onClick={onCancel}>Cancel</button>
-          <button className="confirm-btn" onClick={onConfirm}>Log Out</button>
+          <button className="confirm-btn" onClick={onConfirm}>Logout</button>
         </div>
       </div>
     </div>
