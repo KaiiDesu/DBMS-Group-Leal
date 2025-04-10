@@ -1,0 +1,65 @@
+.logout-popup-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logout-popup-box {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .logout-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .logout-btns {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .cancel-btn, .confirm-btn {
+    padding: 10px 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .cancel-btn {
+    background: gray;
+    color: white;
+  }
+  
+  .confirm-btn {
+    background: navy;
+    color: white;
+  }
+  
+  .logout-title{
+    font-size: 26px;
+    font-weight: bold;
+    font-family: 'Georgia', serif;
+    color: #222;
+  }
+
+  .popup-line {
+    height: 2px;
+    background-color: black;
+    margin: 10px 0;
+  }

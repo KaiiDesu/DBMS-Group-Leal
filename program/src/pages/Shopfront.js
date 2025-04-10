@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { supabase } from '../supabaseClient'; // Make sure this is correct
+import { supabase } from '../supabaseClient';
+import LogoutPopup from '../components/LogoutPopup'; // ✅ NEW custom popup
 
 function Shopfront() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -14,28 +16,40 @@ function Shopfront() {
     setIsMenuOpen(false);
   };
 
-  // Fetch products from Supabase
-useEffect(() => {
-  const fetchProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('id, name, price, image_url, description'); // Explicitly selecting all needed fields
-
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('❌ Error fetching products:', error);
-    } else {
-      console.log('✅ Fetched products:', data);
-      setProducts(data);
+      console.error('Logout error:', error.message);
+      return;
     }
+    window.location.href = '/login';
   };
 
-  fetchProducts();
-}, []);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, price, image_url, description');
+
+      if (error) {
+        console.error('❌ Error fetching products:', error);
+      } else {
+        setProducts(data);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <div className="App">
+      {showLogoutPopup && (
+        <LogoutPopup
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogoutPopup(false)}
+        />
+      )}
 
-      {/* ✅ NAVBAR */}
       <header className="navbar">
         <div className="navbar-left">
           <img src="/logovape.png" alt="Logo" className="nav-logo" />
@@ -51,7 +65,6 @@ useEffect(() => {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="hero-section">
         <img src="/logovape.png" alt="Vape Bureau Logo" className="hero-logo" />
         <div className="search-bar">
@@ -61,31 +74,25 @@ useEffect(() => {
         <p>Welcome to Vape Bureau, your ultimate destination for all things vape!</p>
       </section>
 
-      {/* Product Grid Section */}
       <section className="products-section">
-      {products.map((item) => (
-        <div className="product-card" key={item.id}>
-          <img src={item.image_url} alt={item.name} />
-          <h3>{item.name}</h3>
-          <p>SRP: ₱{item.price}</p>
-          
-          {/* 👇 Add this line to show description */}
-          <p className="product-description">{item.description}</p>
-          
-          {item.is_sold_out ? (
-            <p style={{ color:  '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
-          ) : (
-      <div className="buttons">
-        <button className="compare-btn">+ Add to compare</button>
-        <button className="buy-btn">Buy now</button>
-      </div>
-    )}
-  </div>
-))}
-
+        {products.map((item) => (
+          <div className="product-card" key={item.id}>
+            <img src={item.image_url} alt={item.name} />
+            <h3>{item.name}</h3>
+            <p>SRP: ₱{item.price}</p>
+            <p className="product-description">{item.description}</p>
+            {item.is_sold_out ? (
+              <p style={{ color: '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
+            ) : (
+              <div className="buttons">
+                <button className="compare-btn">+ Add to compare</button>
+                <button className="buy-btn">Buy now</button>
+              </div>
+            )}
+          </div>
+        ))}
       </section>
 
-      {/* Sidebar Drawer Menu */}
       <div className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
         <button className="close-btn" onClick={closeMenu}>×</button>
         <ul className="menu-items">
@@ -95,7 +102,9 @@ useEffect(() => {
           <li><img src="sidebar/contact.png" alt="Contact Us" /><span>Contact Us</span></li>
         </ul>
         <div className="sidebar-footer">
-          <button className="logout-btn">Log Out <img src="sidebar/logout.png" alt="Logout" /></button>
+          <button className="logout-btn" onClick={() => setShowLogoutPopup(true)}>
+            Log Out <img src="sidebar/logout.png" alt="Logout" />
+          </button>
         </div>
       </div>
     </div>
