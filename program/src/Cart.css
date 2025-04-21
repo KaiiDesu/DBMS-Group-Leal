@@ -1,0 +1,128 @@
+/* Cart Page Styles */
+
+.cart-container {
+  background-color: #fff;
+  padding: 40px;
+  font-family: 'Times New Roman', serif;
+  color: #000;
+  min-height: 100vh;
+}
+
+/* FIXED Header layout using flex */
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #000054;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.cart-title {
+  flex: 1;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+}
+
+.back-btn,
+.edit-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.back-btn {
+  margin-right: auto;
+}
+
+.edit-btn {
+  margin-left: auto;
+}
+
+/* Table */
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.cart-table th {
+  text-align: left;
+  font-size: 16px;
+  padding: 12px 10px;
+  border-bottom: 2px solid #000;
+}
+
+.cart-table td {
+  padding: 12px 10px;
+  vertical-align: middle;
+  border-bottom: 1px solid #ccc;
+}
+
+.cart-table img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.quantity-input {
+  width: 50px;
+  text-align: center;
+  font-size: 14px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.checkout-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.checkout-button {
+  background-color: #222;
+  color: white;
+  font-size: 18px;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.checkout-button:hover {
+  background-color: #444;
+}
+
+.shipping-info {
+  font-size: 14px;
+  text-align: right;
+  line-height: 1.5;
+}
+
+.select-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-top: 20px;
+}

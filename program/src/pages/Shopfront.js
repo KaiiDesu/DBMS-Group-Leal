@@ -1,19 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import './Shopfront.css';
 import { supabase } from '../supabaseClient';
-import LogoutPopup from '../components/LogoutPopup'; // ✅ NEW custom popup
+import LogoutPopup from '../components/LogoutPopup';
+import { useNavigate } from 'react-router-dom';
 
 function Shopfront() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+  const [cartPreviewOpen, setCartPreviewOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const toggleCartPreview = () => {
+    setCartPreviewOpen(!cartPreviewOpen);
   };
 
-  const closeMenu = () => {
-    setIsMenuOpen(false);
+  const handleAddToCart = (product) => {
+    const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingIndex = existingCart.findIndex(item => item.id === product.id);
+
+    if (existingIndex !== -1) {
+      existingCart[existingIndex].quantity += 1;
+    } else {
+      existingCart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(existingCart));
+    setCartItems(existingCart);
+    alert(`${product.name} added to cart!`);
   };
 
   const handleLogout = async () => {
@@ -29,7 +44,7 @@ function Shopfront() {
     const fetchProducts = async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, price, image_url, description');
+        .select('id, name, price, image_url, description, is_sold_out');
 
       if (error) {
         console.error('❌ Error fetching products:', error);
@@ -40,6 +55,11 @@ function Shopfront() {
 
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCartItems(storedCart);
+  }, [cartPreviewOpen]);
 
   return (
     <div className="App">
@@ -55,13 +75,49 @@ function Shopfront() {
           <img src="/logovape.png" alt="Logo" className="nav-logo" />
           <span className="brand-name">Vape Bureau PH</span>
         </div>
+
         <div className="navbar-right">
-          <button className="icon-btn">
-            <img src="/cart-icon.png" alt="Cart" />
-          </button>
-          <button className="icon-btn" onClick={toggleMenu}>
-            <img src="/menu-icon.png" alt="Menu" />
-          </button>
+          <div className="navbar-mid">
+            <div className="dropdown">
+              <span className="dropdown-label" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                User <span className={`arrow ${isDropdownOpen ? 'rotated' : ''}`}>▾</span>
+              </span>
+
+              <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`}>
+                <button onClick={() => console.log('Profile')}>Profile</button>
+                <button onClick={() => setShowLogoutPopup(true)}>Logout</button>
+              </div>
+            </div>
+
+            <span className="nav-item">Categories</span>
+            <span className="nav-item">About Us</span>
+            <span className="nav-item">Contact Us</span>
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <button className="icon-btn" onClick={toggleCartPreview}>
+              <img src="/cart-icon.png" alt="Cart" />
+            </button>
+
+            {cartPreviewOpen && (
+              <div className="cart-preview-dropdown">
+                {cartItems.length === 0 ? (
+                  <p style={{ padding: '10px' }}>Cart is empty</p>
+                ) : (
+                  <>
+                    <ul className="cart-preview-list">
+                      {cartItems.map((item) => (
+                        <li key={item.id}>
+                          <span>• {item.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <button className="view-all-btn" onClick={() => navigate('/cart')}>View All</button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -85,29 +141,13 @@ function Shopfront() {
               <p style={{ color: '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
             ) : (
               <div className="buttons">
-                <button className="compare-btn">+ Add to compare</button>
-                <button className="buy-btn">Buy now</button>
+                <button className="compare-btn" onClick={() => handleAddToCart(item)}>+ Add to Cart</button>
+                <button className="buy-btn" onClick={() => navigate('/cart')}>Buy now</button>
               </div>
             )}
-           
           </div>
         ))}
       </section>
-
-      <div className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
-        <button className="close-btn" onClick={closeMenu}>×</button>
-        <ul className="menu-items">
-          <li><img src="sidebar/user.png" alt="User" /><span>User</span></li>
-          <li><img src="sidebar/categories.png" alt="Categories" /><span>Categories</span></li>
-          <li><img src="sidebar/about.png" alt="About Us" /><span>About Us</span></li>
-          <li><img src="sidebar/contact.png" alt="Contact Us" /><span>Contact Us</span></li>
-        </ul>
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={() => setShowLogoutPopup(true)}>
-            Log Out <img src="sidebar/logout.png" alt="Logout" />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

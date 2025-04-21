@@ -85,41 +85,54 @@ function SellerLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password, firstName, lastName } = formData;
+  const { data: existingCustomer, error: customerCheckError } = await supabase
+  .from('profiles')
+  .select('id')
+  .eq('email', email)
+  .single();
 
+if (existingCustomer) {
+  return setPopupMsg('This email is already used by a customer. Please use a different email.');
+}
     if (formType === 'signup') {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: `${window.location.origin}/seller-confirm`,
           data: { first_name: firstName, last_name: lastName }
         }
       });
-
+    
       if (signUpError) return setPopupMsg('Signup failed: ' + signUpError.message);
-
-      setPopupMsg('Signup successful! Please check your email to complete registration.');
+    
+      setPopupMsg('Signup successful! Please check your email for confirmation.');
       resetForm();
-    } else {
+    }
+    
+    
+    else {
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return setPopupMsg('Login failed: ' + error.message);
-
+  
       const user = authData.user;
       const { data: seller, error: sellerError } = await supabase
         .from('sellers')
         .select('*')
         .eq('id', user.id)
         .single();
-
+  
       if (!seller || sellerError) {
         return setPopupMsg('This is not a seller account.');
       }
-
+  
       setPopupMsg('Login successful!');
-      setRedirectAfterPopup(true); // redirect after popup is confirmed
+      setRedirectAfterPopup(true);
     }
   };
+  
 
+  
   const handlePopupClose = () => {
     setPopupMsg('');
     if (redirectAfterPopup) {
