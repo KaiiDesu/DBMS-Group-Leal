@@ -5,6 +5,7 @@ import SellerLogin from './pages/SellerLogin';
 import Cart from './pages/Cart';
 import SellerDashboard from './pages/SellerDashboard';
 import SellerConfirm from './pages/SellerConfirm';
+import ProfilePage from './pages/ProfilePage';
 
 
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/seller-dashboard" element={<SellerDashboard />} />
         <Route path="/seller-confirm" element={<SellerConfirm />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Router>
   );

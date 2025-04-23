@@ -10,6 +10,7 @@ function Shopfront() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [cartPreviewOpen, setCartPreviewOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   const toggleCartPreview = () => {
@@ -84,7 +85,7 @@ function Shopfront() {
               </span>
 
               <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`}>
-                <button onClick={() => console.log('Profile')}>Profile</button>
+              <button onClick={() => navigate('/profile')}>Profile</button>
                 <button onClick={() => setShowLogoutPopup(true)}>Logout</button>
               </div>
             </div>
@@ -124,14 +125,23 @@ function Shopfront() {
       <section className="hero-section">
         <img src="/logovape.png" alt="Vape Bureau Logo" className="hero-logo" />
         <div className="search-bar">
-          <input type="text" placeholder="Search" />
+        <input
+          type="text"
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
           <button className="search-btn" />
         </div>
         <p>Welcome to Vape Bureau, your ultimate destination for all things vape!</p>
       </section>
 
       <section className="products-section">
-        {products.map((item) => (
+      {products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        ).map((item) => (
+
           <div className="product-card" key={item.id}>
             <img src={item.image_url} alt={item.name} />
             <h3>{item.name}</h3>
