@@ -1,49 +1,129 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './InventoryPage.css';
-import ModalUploadForm from '../components/ModalUploadForm'; // make sure this import matches your actual file
+import { supabase } from '../supabaseClient';
+import ProductEditPopup from './ProductEditPopup';
 
 function InventoryPage() {
-  const [showModal, setShowModal] = useState(false); // <-- this was missing
+  const [products, setProducts] = useState([]);
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const fetchProducts = async () => {
+    const { data, error } = await supabase.from('products').select('*');
+    if (data) setProducts(data);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleEditClick = (id) => {
+    setEditingProductId(id);
+  };
+
+  const handleDeleteClick = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+    if (!confirmDelete) return;
+
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) {
+      alert('❌ Failed to delete product: ' + error.message);
+    } else {
+      alert('🗑️ Product deleted.');
+      fetchProducts();
+    }
+  };
+
+  const closeEditPopup = () => {
+    setEditingProductId(null);
+    fetchProducts();
+  };
 
   return (
     <div className="inventory-container">
-      <h2 className="inventory-title">Inventory</h2>
-
-      {/* Wrapper for filters + Add Product */}
-      <div className="inventory-controls">
-        <div className="left-filters">
-          <select><option>Category</option></select>
-          <select><option>Status</option></select>
-        </div>
-        <button className="add-product-btn" onClick={() => setShowModal(true)}>
-          + Add Product
-        </button>
+      <div className="inventory-header">
+        <h2>Inventory</h2>
       </div>
 
-      {/* Search bar under the controls */}
-      <input type="text" placeholder="Search..." className="search-bar" />
+      <div className="inventory-controls">
+      <input
+        type="text"
+        placeholder="Search product..."
+        className="search-bar"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+        <div className="left-filters">
+          <select>
+            <option>All</option>
+            <option>Published</option>
+            <option>Delisted</option>
+          </select>
+        </div>
+      </div>
 
-      {/* Inventory Table */}
       <table className="inventory-table">
         <thead>
           <tr>
-            <th></th><th>Product ID</th><th>Name</th><th>Stocks</th><th>Price</th><th></th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><img src="/placeholder.jpg" alt="product" className="product-img" /></td>
-            <td>1</td>
-            <td>Product Name</td>
-            <td>40</td>
-            <td>500</td>
-            <td><span className="options-icon">⋮</span></td>
-          </tr>
+        {products
+          .filter((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+          .map((item) => (
+            <tr key={item.id}>
+              <td>{item.name}</td>
+              <td>₱{item.price}</td>
+              <td>
+                {item.quantity <= 5 ? (
+                  <span className="low-stock-badge">Low: {item.quantity}</span>
+                ) : (
+                  item.quantity
+                )}
+              </td>
+              <td>{item.is_sold_out ? 'Delisted' : 'Published'}</td>
+              <td>
+                <span
+                  className="action-icon"
+                  role="button"
+                  onClick={() => handleEditClick(item.id)}
+                  title="Edit"
+                >
+                  ✏️
+                </span>
+                <span
+                  className="action-icon"
+                  role="button"
+                  onClick={() => handleDeleteClick(item.id)}
+                  title="Delete"
+                  style={{ marginLeft: '10px' }}
+                >
+                  🗑️
+                </span>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
-      {/* Upload Product Modal */}
-      {showModal && <ModalUploadForm onClose={() => setShowModal(false)} />}
+      {editingProductId && (
+        <div className="popup-overlay">
+          <div className="popup-wrapper">
+            <ProductEditPopup
+              productId={editingProductId}
+              onClose={closeEditPopup}
+              onUpdated={fetchProducts}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../pages/logovape.png';
 import { supabase } from '../supabaseClient';
 
-function ProfilePage() {
+export default function ProfilePage() {
   const [image, setImage] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [gender, setGender] = useState('');
@@ -17,79 +17,71 @@ function ProfilePage() {
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
 
-  const handleImageUpload = (e) => {
+  useEffect(() => {
+    async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserId(user.id);
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, phone_number, gender, birthdate, email')
+        .eq('id', user.id)
+        .single();
+
+        if (data) {
+          // display the existing name
+          setFirstName(data.first_name || '');
+          setLastName (data.last_name   || '');
+    
+          // ALWAYS start the inputs blank on mount
+          setNameInput('');
+          setLastNameInput('');
+
+    
+          // if you want phone/gender/birthdate to keep their current values, leave these:
+          setPhoneNumber(data.phone_number || '');
+          setGender     (data.gender       || '');
+          setBirthdate  (data.birthdate    || '');
+    
+          setEmail(data.email || '');
+        }
+    
+    }
+
+    loadProfile();
+  }, []);
+
+  const handleImageUpload = e => {
     const file = e.target.files[0];
     if (file) setImage(URL.createObjectURL(file));
   };
 
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        setUserId(user.id);
-
-        const { data } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, phone_number, gender, birthdate, email')
-          .eq('id', user.id)
-          .single();
-
-        if (data) {
-          setFirstName(data.first_name || '');
-          setNameInput(data.first_name || '');
-          setLastName(data.last_name || '');
-          setLastNameInput(data.last_name || '');
-          setPhoneNumber(data.phone_number || '');
-          setGender(data.gender || '');
-          setBirthdate(data.birthdate || '');
-          setEmail(data.email || '');
-        }
-      }
-    };
-
-    getUser();
-  }, []);
-
   const handleSave = async () => {
     if (!userId) return;
-
-    const missingFields = [];
-    if (!nameInput.trim()) missingFields.push('Name');
-    if (!lastNameInput.trim()) missingFields.push('Last Name');
-    if (!phoneNumber.trim()) missingFields.push('Phone Number');
-    if (!birthdate.trim()) missingFields.push('Date of Birth');
-
-    if (missingFields.length > 0) {
-      alert(`❌ Please fill up: ${missingFields.join(', ')}`);
-      return;
-    }
-
+  
+    // Directly update without any empty‐field validation
     const { error } = await supabase
       .from('profiles')
       .update({
         first_name: nameInput.trim(),
-        last_name: lastNameInput.trim(),
+        last_name:  lastNameInput.trim(),
         phone_number: phoneNumber.trim(),
         gender,
         birthdate: birthdate.trim()
       })
       .eq('id', userId);
-
+  
     if (error) {
       console.log('Update error:', error);
       alert('❌ Failed to update profile.');
     } else {
       alert('✅ Profile updated successfully!');
+      // refresh the displayed name and then clear the inputs
       setFirstName(nameInput.trim());
-      setLastName(lastNameInput.trim());
+      setLastName (lastNameInput.trim());
       setNameInput('');
       setLastNameInput('');
-      setPhoneNumber('');
-      setGender('');
-      setBirthdate('');
     }
   };
 
@@ -112,42 +104,42 @@ function ProfilePage() {
           </header>
 
           <div className="profile-content">
+            {/* LEFT SIDE FORM */}
             <div className="profile-left">
               <p><strong>Name:</strong> {firstName} {lastName}</p>
 
-<label>Change your name: </label>
-              <label>First Name
+              <label>
+                First Name
                 <input
                   type="text"
                   placeholder="Change First Name"
                   value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
+                  onChange={e => setNameInput(e.target.value)}
                 />
               </label>
 
-              <label>Last Name
+              <label>
+                Last Name
                 <input
                   type="text"
                   placeholder="Change Last Name"
                   value={lastNameInput}
-                  onChange={(e) => setLastNameInput(e.target.value)}
+                  onChange={e => setLastNameInput(e.target.value)}
                 />
               </label>
 
-              <label>Email
-                <input
-                  type="email"
-                  value={email}
-                  disabled
-                />
+              <label>
+                Email
+                <input type="email" value={email} disabled />
               </label>
 
-              <label>Phone number
+              <label>
+                Phone number
                 <input
                   type="tel"
                   placeholder="Enter Phone Number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={e => setPhoneNumber(e.target.value)}
                 />
               </label>
 
@@ -159,7 +151,7 @@ function ProfilePage() {
                     name="gender"
                     value="Male"
                     checked={gender === 'Male'}
-                    onChange={(e) => setGender(e.target.value)}
+                    onChange={e => setGender(e.target.value)}
                   /> Male
                 </label>
                 <label>
@@ -168,7 +160,7 @@ function ProfilePage() {
                     name="gender"
                     value="Female"
                     checked={gender === 'Female'}
-                    onChange={(e) => setGender(e.target.value)}
+                    onChange={e => setGender(e.target.value)}
                   /> Female
                 </label>
                 <label>
@@ -177,32 +169,34 @@ function ProfilePage() {
                     name="gender"
                     value="Others"
                     checked={gender === 'Others'}
-                    onChange={(e) => setGender(e.target.value)}
+                    onChange={e => setGender(e.target.value)}
                   /> Others
                 </label>
               </div>
 
-              <label>Date of birth :
+              <label>
+                Date of birth
                 <input
                   type="date"
                   className="date-input"
                   value={birthdate}
-                  onChange={(e) => setBirthdate(e.target.value)}
+                  onChange={e => setBirthdate(e.target.value)}
                 />
               </label>
 
               <button className="save-btn" onClick={handleSave}>Save</button>
             </div>
 
+            {/* VERTICAL DIVIDER */}
             <div className="profile-divider" />
 
+            {/* RIGHT SIDE AVATAR UPLOAD */}
             <div className="profile-right">
               <div className="upload-area" onClick={() => document.getElementById('imageUpload').click()}>
-                {image ? (
-                  <img src={image} alt="avatar" className="avatar-preview" />
-                ) : (
-                  <div className="placeholder-icon">+</div>
-                )}
+                {image
+                  ? <img src={image} alt="avatar" className="avatar-preview" />
+                  : <div className="placeholder-icon">+</div>
+                }
                 <input
                   type="file"
                   id="imageUpload"
@@ -211,7 +205,10 @@ function ProfilePage() {
                   hidden
                 />
               </div>
-              <p className="upload-info">File Size: maximum 1MB<br />File Extension: .JPEG, .PNG</p>
+              <p className="upload-info">
+                File Size: maximum 1MB<br />
+                File Extension: .JPEG, .PNG
+              </p>
             </div>
           </div>
         </div>
@@ -219,5 +216,3 @@ function ProfilePage() {
     </div>
   );
 }
-
-export default ProfilePage;

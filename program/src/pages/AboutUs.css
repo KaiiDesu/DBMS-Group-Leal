@@ -1,0 +1,110 @@
+.about-container {
+    position: relative;
+    background-color: #000054;
+    color: white;
+    padding: 60px 20px;
+  }
+
+  .about-back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    transition: background 0.2s;
+  }
+  .about-back-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  
+  /* HEADER */
+  .about-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 60px;
+  }
+  .about-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+    font-family: 'Times New Roman', Times, serif;
+  }
+  .about-header p {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    font-family: 'Times New Roman', Times, serif;
+  }
+  
+  /* SECTION COMMON STYLES */
+  .section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    gap: 2rem;
+  }
+  .text-block {
+    flex: 1;
+  }
+  .text-block h2 {
+    font-size: 1.75rem;
+    margin-bottom: 12px;
+  }
+  .text-block p {
+    font-size: 1rem;
+    line-height: 1.5;
+    font-family: 'Times New Roman', Times, serif;
+  }
+  
+  /* STANDARD IMAGE BLOCK */
+  .image-block {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .image-block img {
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+  }
+  
+  /* PERFECT CIRCLE FOR COMPANY INFO */
+  .company-info .image-block.circle {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid #fff;
+  }
+  .company-info .image-block.circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* FLIP ORDER FOR VISION SECTION */
+  .vision-growth {
+    flex-direction: row-reverse;
+  }
+  
+  /* STACKS VERTICALLY ON MOBILE */
+  @media (max-width: 768px) {
+    .section {
+      flex-direction: column;
+      text-align: center;
+    }
+    .vision-growth {
+      flex-direction: column;
+    }
+    .image-block,
+    .company-info .image-block.circle {
+      margin-top: 20px;
+    }
+  }
+  

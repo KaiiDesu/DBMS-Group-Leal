@@ -6,6 +6,9 @@ import Cart from './pages/Cart';
 import SellerDashboard from './pages/SellerDashboard';
 import SellerConfirm from './pages/SellerConfirm';
 import ProfilePage from './pages/ProfilePage';
+import ContactSection from './pages/ContactSection';
+import AboutUs from './pages/AboutUs';
+import Orders from './pages/Orders';
 
 
 
@@ -22,6 +25,9 @@ function App() {
         <Route path="/seller-dashboard" element={<SellerDashboard />} />
         <Route path="/seller-confirm" element={<SellerConfirm />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/contact" element={<ContactSection />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/order" element={<Orders />} />
       </Routes>
     </Router>
   );

@@ -186,6 +186,7 @@
 .dropdown {
   position: relative;
   display: inline-block;
+  cursor: pointer;
 }
 
 .dropdown-label {
@@ -195,39 +196,31 @@
 }
 
 .dropdown-content {
+  display: none;
   position: absolute;
-  top: 120%;
-  right: 0;
-  background-color: white;
-  color: black;
-  width: 160px;
+  top: 100%;        /* sit directly below the label */
+  right: 0;         /* align its right edge with the label’s */
+  background: white;
+  color: #000;
   border-radius: 8px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-  padding: 0;
-  z-index: 999;
-
-  opacity: 0;
-  transform: translateY(-10px);
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 10000;
 }
 
 .dropdown-content.show {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  display: block;
 }
 
 /* Button styling with smooth edges */
 .dropdown-content button {
   all: unset;
+  display: block;
   width: 100%;
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 14px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
   cursor: pointer;
-  background-color: white;
-  transition: background-color 0.2s ease;
 }
 
 .dropdown-content button:first-child {
@@ -456,4 +449,147 @@
 
 .view-all-btn:hover {
   background-color: #1f1f80;
+}
+
+.nav-item {
+  cursor: pointer;
+}
+
+.logout-backdrop {
+  position: fixed;
+  inset: 0;               /* top:0; right:0; bottom:0; left:0; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+.logout-modal {
+  /* lock into a landscape-ish box */
+  width: 90%;
+  max-width: 500px;             /* pick whatever width you want */
+  /* optionally a min-height if you like */
+  min-height: 200px;
+}
+
+/* full-screen backdrop */
+.qty-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* modal box */
+.qty-modal {
+  width: 90%;
+  max-width: 360px;
+  background: rgb(255, 255, 255);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.qty-modal h3,
+.qty-modal label,
+.qty-modal {
+  color: #000;
+}
+
+.qty-modal .cancel-btn,
+.qty-modal .confirm-btn {
+  color: #ffffff; /* or whatever contrast color you like */
+}
+
+.qty-modal h3 {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.qty-modal label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.qty-modal input {
+  width: 80px;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.qty-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-btn,
+.confirm-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #eee;
+}
+
+.confirm-btn {
+  background: #000054;
+  color: white;
+}
+
+
+.detail-popup {
+  max-width: 850px;
+  width: 95%;
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+
+}
+
+.image-wrapper {
+  flex: 1;
+  max-width: 400px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f0f0f0;
+}
+
+.detail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
+}
+
+.detail-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: black;
+}
+
+.detail-info h2 {
+  margin-top: 0;
+  font-size: 24px;
+  color: #000054;
 }

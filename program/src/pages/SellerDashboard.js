@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import LogoutPopup from '../components/LogoutPopup';
 import InventoryPage from './InventoryPage';
+import UploadOrderPage from './UploadOrderPage';
 
 function SellerDashboard() {
   const [activeView, setActiveView] = useState('home');
@@ -33,8 +34,8 @@ function SellerDashboard() {
           <ul>
             <li className={activeView === 'home' ? 'active' : ''} onClick={() => handleSidebarClick('home')}>Home</li>
             <li className={activeView === 'order' ? 'active' : ''}>Order</li>
-            <li className={activeView === 'inventory' ? 'active' : ''} onClick={() => handleSidebarClick('inventory')}>Inventory</li>
-            <li className={activeView === 'shipping' ? 'active' : ''}>Shipping</li>
+            <li className={activeView === 'upload' ? 'active' : ''} onClick={() => handleSidebarClick('upload')}>Upload Order</li>
+            <li className={activeView === 'inventory' ? 'active' : ''} onClick={() => handleSidebarClick('inventory')}>Inventory</li>  
             <li className={activeView === 'manage' ? 'active' : ''}>Manage User</li>
             <li className={activeView === 'setting' ? 'active' : ''}>Setting</li>
             <li onClick={() => setShowLogout(true)}>Log Out</li>
@@ -95,9 +96,9 @@ function SellerDashboard() {
           </div>
         )}
 
-        {activeView === 'inventory' && (
-          <InventoryPage />
-        )}
+        {activeView === 'inventory' && <InventoryPage />}
+        {activeView === 'upload' && <UploadOrderPage onCancel={() => setActiveView('home')} />}
+
       </div>
 
       {showLogout && (
