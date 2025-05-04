@@ -1,0 +1,82 @@
+/* ContactSection.css */
+.contact-container {
+  background: linear-gradient(rgba(0, 0, 80, 0.8), rgba(0, 0, 80, 0.8)), url('./vapebg.jpg') center/cover no-repeat;
+  color: #fff;
+  padding: 60px 30px;
+  text-align: center;
+  position: relative;
+  background-size: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 575px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contact-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.contact-subtitle {
+  font-size: 1rem;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.contact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.2rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 15px 20px;
+  border-radius: 10px;
+  min-width: 200px;
+}
+
+.icon {
+  font-size: 1.8rem;
+}
+
+.contact-footer {
+  font-size: 0.9rem;
+  color: #ccc;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 15px;
+  text-align: right;
+  margin-top: 210px;
+}
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 250px;
+  background-color: transparent;
+  border: 2px solid #fff;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: white;
+  color: #000;
+}

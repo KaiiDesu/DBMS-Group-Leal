@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -68,3 +69,18 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+=======
+#DBMS Leal
+
+Advincula, Klloyd Robert
+Alvarez, Frances Nicole B.
+Garcia, Justin Vlady Rain C.
+Langcay, El Jusly Z.
+Leal, Godwyn S.
+Llaneras, Francine Jean
+Nadonga, Maria Teresa V.
+Perez, Mark Rey Lands B.
+Perez, Ronnie Roi C.
+Sabiniano, Rainjustine
+Villegas, Chelsy Angelica N.
+>>>>>>> d0712c95c32bf5d247c487d376eadb5466b7cdfb
