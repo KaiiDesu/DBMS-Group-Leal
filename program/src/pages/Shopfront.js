@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import { motion, AnimatePresence } from 'framer-motion';
+import Chatbot from '../components/Chatbot';
 
 function Shopfront() {
   const [products, setProducts] = useState([]);
@@ -192,18 +193,20 @@ function Shopfront() {
 <AnimatePresence>
   {showDetailPopup && selectedDetailProduct && (
     <motion.div
-      className="order-summary-backdrop"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
-        className="order-summary-popup detail-popup"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 50, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      >
+  className="order-summary-backdrop"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  onClick={() => setShowDetailPopup(false)} // ✅ this closes on click
+>
+<motion.div
+    className="order-summary-popup detail-popup"
+    initial={{ y: -50, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    exit={{ y: 50, opacity: 0 }}
+    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+    onClick={(e) => e.stopPropagation()} // ✅ this prevents inner box from closing it
+  >
         <div className="detail-content">
           <div className="image-wrapper">
             <img
@@ -224,6 +227,7 @@ function Shopfront() {
   )}
 </AnimatePresence>
 
+<Chatbot />
     </div>
   );
 }

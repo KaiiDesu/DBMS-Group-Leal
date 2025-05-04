@@ -104,6 +104,68 @@
     background: #1f1f80;
   }
   
+  .detail-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
   
+  .detail-image {
+    flex: 1 1 50%;
+    max-width: 50%;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  
+  .detail-info {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .detail-info h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: #2e2e8a;
+    font-weight: bold;
+  }
+  
+  .detail-info p {
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: #333;
+    word-break: break-word;
+    white-space: pre-wrap; /* handles new lines and long unbroken strings */
+    line-height: 1.5;
+  }
+  
+  .detail-info .price {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .detail-info .close-btn {
+    padding: 10px 20px;
+    background-color: #111;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+    border-radius: 4px;
+    align-self: flex-start;
+  }
   
   

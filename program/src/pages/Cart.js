@@ -90,7 +90,7 @@ function Cart() {
       contact_number: contactNumber.trim(),
       total: subtotal + shipping - discount,
       payment_method: method,
-      status: 'pending',
+      status: 'pending', 
       created_at: new Date().toISOString()
     };
 
