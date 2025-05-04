@@ -1,24 +1,24 @@
 {
   "files": {
-    "main.css": "/dbms-group-leal/static/css/main.64e20dc2.css",
-    "main.js": "/dbms-group-leal/static/js/main.01a96be8.js",
-    "static/js/952.863d25c7.chunk.js": "/dbms-group-leal/static/js/952.863d25c7.chunk.js",
-    "static/js/453.2e78be2b.chunk.js": "/dbms-group-leal/static/js/453.2e78be2b.chunk.js",
-    "static/media/vapebg.jpg": "/dbms-group-leal/static/media/vapebg.3127340151569ee04a63.jpg",
-    "static/media/loginbg.png": "/dbms-group-leal/static/media/loginbg.a68810db618ff5502d3f.png",
-    "static/media/logovape.png": "/dbms-group-leal/static/media/logovape.fcb364a5f4bbaa138646.png",
-    "static/media/chatbot-icon.png": "/dbms-group-leal/static/media/chatbot-icon.1ecc85dd8538abe051ea.png",
-    "static/media/bank-icon.jpeg": "/dbms-group-leal/static/media/bank-icon.b70a4fe3e359e7dfda28.jpeg",
-    "static/media/cod-icon.png": "/dbms-group-leal/static/media/cod-icon.727133cd16cfe5de9fb4.png",
-    "static/media/gcash-logo.png": "/dbms-group-leal/static/media/gcash-logo.97e6e58fc5b4082d30bf.png",
-    "index.html": "/dbms-group-leal/index.html",
-    "main.64e20dc2.css.map": "/dbms-group-leal/static/css/main.64e20dc2.css.map",
-    "main.01a96be8.js.map": "/dbms-group-leal/static/js/main.01a96be8.js.map",
-    "952.863d25c7.chunk.js.map": "/dbms-group-leal/static/js/952.863d25c7.chunk.js.map",
-    "453.2e78be2b.chunk.js.map": "/dbms-group-leal/static/js/453.2e78be2b.chunk.js.map"
+    "main.css": "/DBMS-Group-Leal/static/css/main.722046f9.css",
+    "main.js": "/DBMS-Group-Leal/static/js/main.9b222ecb.js",
+    "static/js/952.863d25c7.chunk.js": "/DBMS-Group-Leal/static/js/952.863d25c7.chunk.js",
+    "static/js/453.2e78be2b.chunk.js": "/DBMS-Group-Leal/static/js/453.2e78be2b.chunk.js",
+    "static/media/vapebg.jpg": "/DBMS-Group-Leal/static/media/vapebg.3127340151569ee04a63.jpg",
+    "static/media/loginbg.png": "/DBMS-Group-Leal/static/media/loginbg.a68810db618ff5502d3f.png",
+    "static/media/logovape.png": "/DBMS-Group-Leal/static/media/logovape.fcb364a5f4bbaa138646.png",
+    "static/media/chatbot-icon.png": "/DBMS-Group-Leal/static/media/chatbot-icon.1ecc85dd8538abe051ea.png",
+    "static/media/bank-icon.jpeg": "/DBMS-Group-Leal/static/media/bank-icon.b70a4fe3e359e7dfda28.jpeg",
+    "static/media/cod-icon.png": "/DBMS-Group-Leal/static/media/cod-icon.727133cd16cfe5de9fb4.png",
+    "static/media/gcash-logo.png": "/DBMS-Group-Leal/static/media/gcash-logo.97e6e58fc5b4082d30bf.png",
+    "index.html": "/DBMS-Group-Leal/index.html",
+    "main.722046f9.css.map": "/DBMS-Group-Leal/static/css/main.722046f9.css.map",
+    "main.9b222ecb.js.map": "/DBMS-Group-Leal/static/js/main.9b222ecb.js.map",
+    "952.863d25c7.chunk.js.map": "/DBMS-Group-Leal/static/js/952.863d25c7.chunk.js.map",
+    "453.2e78be2b.chunk.js.map": "/DBMS-Group-Leal/static/js/453.2e78be2b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.64e20dc2.css",
-    "static/js/main.01a96be8.js"
+    "static/css/main.722046f9.css",
+    "static/js/main.9b222ecb.js"
   ]
 }
