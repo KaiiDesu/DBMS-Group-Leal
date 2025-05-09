@@ -21,6 +21,8 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
 
+  
+
   // Load cart from localStorage
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('cart')) || [];
@@ -37,10 +39,18 @@ export default function OrdersPage() {
       }
 
       const { data, error } = await supabase
-        .from('orders')
-        .select('id, code, address, total, status, items')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      .from('orders')
+      .select(`
+        id,
+        code,
+        address,
+        total,
+        status,
+        items,
+        profiles: profiles (first_name, last_name, email)
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error loading orders:', error);
@@ -59,6 +69,8 @@ export default function OrdersPage() {
     })();
   }, []);
 
+  
+
   const filtered = orders.filter(o => {
     const term = searchTerm.toLowerCase();
     return o.code.includes(term) || (o.address || '').toLowerCase().includes(term);
@@ -68,7 +80,7 @@ export default function OrdersPage() {
   const toggleCartPreview = () => setCartPreviewOpen(v => !v);
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
-    if (!error) window.location.href = '/login';
+    if (!error) navigate('/login');
   };
 
   return (
@@ -102,7 +114,6 @@ export default function OrdersPage() {
               <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`}>
                 <button onClick={() => navigate('/shopfront')}>Shop</button>
                 <button onClick={() => navigate('/profile')}>Profile</button>
-                <button onClick={() => navigate('/orders')}>Orders</button>
                 <button onClick={() => setShowLogoutPopup(true)}>Logout</button>
               </div>
             </div>
@@ -176,7 +187,7 @@ export default function OrdersPage() {
                 </td>
 
                 <td>{o.code}</td>
-                <td>Buyer Name</td>
+                <td>{o.profiles?.first_name} {o.profiles?.last_name}</td>
                 <td>{o.address}</td>
                 <td>₱{o.total}</td>
                 <td className={`status ${o.status?.toUpperCase()}`}>{o.status}</td>

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Shopfront from './pages/Shopfront';
 import SellerLogin from './pages/SellerLogin';
@@ -9,6 +9,10 @@ import ProfilePage from './pages/ProfilePage';
 import ContactSection from './pages/ContactSection';
 import AboutUs from './pages/AboutUs';
 import Orders from './pages/Orders';
+import OrderDetailsPage from './pages/OrderDetailsPage';
+import Confirm from './pages/Confirm';
+import BelowAge from './pages/BelowAge';
+
 
 
 
@@ -28,6 +32,9 @@ function App() {
         <Route path="/contact" element={<ContactSection />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/order" element={<Orders />} />
+        <Route path="/seller-order/:id" element={<OrderDetailsPage />} />
+        <Route path="/confirm" element={<Confirm />} />
+        <Route path="/underage" element={<BelowAge />} />
       </Routes>
     </Router>
   );

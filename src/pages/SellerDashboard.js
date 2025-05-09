@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import './SellerDashboard.css';
 import logo from '../pages/logovape.png';
 import { supabase } from '../supabaseClient';
@@ -6,11 +7,42 @@ import { useNavigate } from 'react-router-dom';
 import LogoutPopup from '../components/LogoutPopup';
 import InventoryPage from './InventoryPage';
 import UploadOrderPage from './UploadOrderPage';
+import SellerOrders from './SellerOrders';
 
 function SellerDashboard() {
   const [activeView, setActiveView] = useState('home');
   const [showLogout, setShowLogout] = useState(false);
   const navigate = useNavigate();
+  const [sellerName, setSellerName] = useState('');
+
+  useEffect(() => {
+    const fetchSellerName = async () => {
+      const {
+        data: { user },
+        error: authError
+      } = await supabase.auth.getUser();
+  
+      if (authError || !user) {
+        console.error('Auth error:', authError?.message || 'No user found');
+        return;
+      }
+  
+      const { data, error } = await supabase
+        .from('sellers')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single();
+  
+      if (error) {
+        console.error('Error fetching seller name:', error.message);
+      } else {
+        setSellerName(`${data.first_name}` .replace(/\b\w/g, char => char.toUpperCase()));
+      }
+    };
+  
+    fetchSellerName();
+  }, []);
+  
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -32,12 +64,46 @@ function SellerDashboard() {
         <img src={logo} alt="Logo" className="logo" />
         <nav className="sidebar-nav">
           <ul>
-            <li className={activeView === 'home' ? 'active' : ''} onClick={() => handleSidebarClick('home')}>Home</li>
-            <li className={activeView === 'order' ? 'active' : ''}>Order</li>
-            <li className={activeView === 'upload' ? 'active' : ''} onClick={() => handleSidebarClick('upload')}>Upload Order</li>
-            <li className={activeView === 'inventory' ? 'active' : ''} onClick={() => handleSidebarClick('inventory')}>Inventory</li>  
-            <li className={activeView === 'manage' ? 'active' : ''}>Manage User</li>
-            <li className={activeView === 'setting' ? 'active' : ''}>Setting</li>
+            <li
+              className={activeView === 'home' ? 'active' : ''}
+              onClick={() => handleSidebarClick('home')}
+            >
+              Home
+            </li>
+            <li
+              className={activeView === 'upload' ? 'active' : ''}
+              onClick={() => handleSidebarClick('upload')}
+            >
+              Upload Order
+            </li>
+            <li
+              className={activeView === 'order' ? 'active' : ''}
+              onClick={() => handleSidebarClick('order')}
+            >
+              Order
+            </li>
+            <li
+              className={activeView === 'inventory' ? 'active' : ''}
+              onClick={() => handleSidebarClick('inventory')}
+            >
+              Inventory
+            </li>
+            <li
+              className={activeView === 'manage' ? 'active' : ''}
+            >
+              Manage User
+            </li>
+            <li>
+              Audit
+            </li>
+            <li>
+              Registree
+            </li>
+            <li
+              className={activeView === 'setting' ? 'active' : ''}
+            >
+              Setting
+            </li>
             <li onClick={() => setShowLogout(true)}>Log Out</li>
           </ul>
         </nav>
@@ -48,23 +114,38 @@ function SellerDashboard() {
         {activeView === 'home' && (
           <div className="content-wrapper">
             <header className="dashboard-header">
-              <input type="text" placeholder="Search" className="search-input" />
               <div className="user-info">
-                <span className="username">USERNAME</span>
-                <span className="role">Admin</span>
+              <span className="username">Seller: {sellerName || 'Seller'} </span>
+                
               </div>
             </header>
 
             <div className="metrics-container">
-              <div className="metric-box"><p>Total Revenue</p><h3>₱0</h3></div>
-              <div className="metric-box"><p>Total Orders</p><h3>500</h3></div>
-              <div className="metric-box"><p>Product in Stock</p><h3>25</h3></div>
-              <div className="metric-box"><p>Pending Shipments</p><h3>2</h3></div>
+              <div className="metric-box">
+                <p>Total Revenue</p>
+                <h3>₱0</h3>
+              </div>
+              <div className="metric-box">
+                <p>Total Orders</p>
+                <h3>500</h3>
+              </div>
+              <div className="metric-box">
+                <p>Product in Stock</p>
+                <h3>25</h3>
+              </div>
+              <div className="metric-box">
+                <p>Pending Shipments</p>
+                <h3>2</h3>
+              </div>
             </div>
 
             <div className="data-section">
-              <div className="bar-chart-box">Product Overview (Bar Chart)</div>
-              <div className="pie-chart-box">Top Selling Products (Pie Chart)</div>
+              <div className="bar-chart-box">
+                Product Overview (Bar Chart)
+              </div>
+              <div className="pie-chart-box">
+                Top Selling Products (Pie Chart)
+              </div>
             </div>
 
             <div className="bottom-section">
@@ -73,11 +154,19 @@ function SellerDashboard() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Order ID</th><th>Date</th><th>Quantity</th><th>Status</th>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Quantity</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td>order ID</td><td>Date</td><td>Quantity</td><td>Status</td></tr>
+                    <tr>
+                      <td>order ID</td>
+                      <td>Date</td>
+                      <td>Quantity</td>
+                      <td>Status</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -85,10 +174,16 @@ function SellerDashboard() {
                 <h4>Top Selling Products / Delivery</h4>
                 <table>
                   <thead>
-                    <tr><th>Order ID</th><th>Quantity</th></tr>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Quantity</th>
+                    </tr>
                   </thead>
                   <tbody>
-                    <tr><td>order ID</td><td>Quantity</td></tr>
+                    <tr>
+                      <td>order ID</td>
+                      <td>Quantity</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -97,8 +192,10 @@ function SellerDashboard() {
         )}
 
         {activeView === 'inventory' && <InventoryPage />}
-        {activeView === 'upload' && <UploadOrderPage onCancel={() => setActiveView('home')} />}
-
+        {activeView === 'upload' && (
+          <UploadOrderPage onCancel={() => setActiveView('home')} />
+        )}
+        {activeView === 'order' && <SellerOrders />}
       </div>
 
       {showLogout && (

@@ -50,6 +50,7 @@ function SellerLogin() {
     setCooldown(0);
   };
 
+  
   const handleForgotFlow = async (e) => {
     e.preventDefault();
     const { email, otp, newPassword, confirmPassword } = formData;
@@ -85,41 +86,46 @@ function SellerLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password, firstName, lastName } = formData;
-  const { data: existingCustomer, error: customerCheckError } = await supabase
-  .from('profiles')
-  .select('id')
-  .eq('email', email)
-  .single();
-
-if (existingCustomer) {
-  return setPopupMsg('This email is already used by a customer. Please use a different email.');
-}
+  
     if (formType === 'signup') {
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/seller-confirm`,
           data: { first_name: firstName, last_name: lastName }
         }
       });
-    
+  
       if (signUpError) return setPopupMsg('Signup failed: ' + signUpError.message);
-    
-      setPopupMsg('Signup successful! Please check your email for confirmation.');
+      const userId = signUpData.user?.id;
+      if (!userId) return setPopupMsg('Signup succeeded but user ID not found.');
+  
+      const { error: insertError } = await supabase.from('sellers').insert([
+        {
+          id: userId,
+          email,
+          first_name: firstName,
+          last_name: lastName
+        }
+      ]);
+  
+      if (insertError) return setPopupMsg('Seller profile insert failed: ' + insertError.message);
+      setPopupMsg('Signup successful! You can now log in.');
       resetForm();
-    }
-    
-    
-    else {
+    } else {
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return setPopupMsg('Login failed: ' + error.message);
   
-      const user = authData.user;
+      // ✅ Wait for session to load before accessing RLS-protected data
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session || sessionError) return setPopupMsg('Session error or not authenticated.');
+  
+      const userId = session.user.id;
+  
       const { data: seller, error: sellerError } = await supabase
         .from('sellers')
-        .select('*')
-        .eq('id', user.id)
+        .select('id, email, first_name, last_name')
+        .eq('id', userId)
         .single();
   
       if (!seller || sellerError) {
@@ -132,7 +138,6 @@ if (existingCustomer) {
   };
   
 
-  
   const handlePopupClose = () => {
     setPopupMsg('');
     if (redirectAfterPopup) {
@@ -170,10 +175,6 @@ if (existingCustomer) {
 
   return (
     <div className="login-container">
-      <div className="seller-redirect">
-        <button onClick={() => navigate('/login')}>Customer?</button>
-      </div>
-
       <img src={logo} alt="Logo" className="login-logo" />
       {popupMsg && <Popup message={popupMsg} onClose={handlePopupClose} />}
 
@@ -237,7 +238,7 @@ if (existingCustomer) {
                 if (cooldown > 0) return setPopupMsg(`Resend failed: wait ${cooldown}s`);
                 const { data: seller, error: checkError } = await supabase
                   .from('sellers').select('id').eq('email', formData.email).single();
-                if (checkError || !seller) return setPopupMsg('This email does not belong to a registered seller account.');
+                if (checkError || !seller) return setPopupMsg('This fdoes not belong to a registered seller account.');
                 const { error } = await supabase.auth.resetPasswordForEmail(formData.email);
                 if (error) return setPopupMsg("Resend failed: " + error.message);
                 setCooldown(30);

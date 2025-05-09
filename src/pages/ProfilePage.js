@@ -134,12 +134,18 @@ export default function ProfilePage() {
               </label>
 
               <label>
-                Phone number
+                Phone Number
                 <input
                   type="tel"
+                  pattern="[0-9]{10,13}"
+                  maxLength="13"
                   placeholder="Enter Phone Number"
                   value={phoneNumber}
-                  onChange={e => setPhoneNumber(e.target.value)}
+                  onChange={e => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) setPhoneNumber(value);
+                  }}
+                  required
                 />
               </label>
 
@@ -175,7 +181,7 @@ export default function ProfilePage() {
               </div>
 
               <label>
-                Date of birth
+                Date of Birth
                 <input
                   type="date"
                   className="date-input"
@@ -187,7 +193,7 @@ export default function ProfilePage() {
               <button className="save-btn" onClick={handleSave}>Save</button>
             </div>
 
-            {/* VERTICAL DIVIDER */}
+            {/* VERTICAL DIVIDER */}}
             <div className="profile-divider" />
 
             {/* RIGHT SIDE AVATAR UPLOAD */}

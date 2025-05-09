@@ -166,7 +166,12 @@ function Cart() {
       <table className="cart-table">
         <thead>
           <tr>
-            <th></th><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th>
+            <th></th>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -210,7 +215,9 @@ function Cart() {
           />
           <span>ALL</span>
           {selectedItemIds.length > 0 && (
-            <button className="delete-selected-btn" onClick={handleDeleteSelected}>🗑️ Delete</button>
+            <button className="delete-selected-btn" onClick={handleDeleteSelected}>
+              🗑️ Delete
+            </button>
           )}
         </div>
         <div className="cart-summary">
@@ -229,15 +236,44 @@ function Cart() {
 
       <AnimatePresence>
         {showOrderSummary && (
-          <motion.div className="order-summary-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="order-summary-popup" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
+          <motion.div
+            className="order-summary-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="order-summary-popup"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
               <h2>Order summary</h2>
-              <button className="edit-btn" onClick={() => setShowOrderSummary(false)}>Exit</button>
+              <button className="edit-btn" onClick={() => setShowOrderSummary(false)}>
+                Exit
+              </button>
               <div className="form">
                 <label>Address:</label>
-                <input type="text" placeholder="Enter address" value={address} onChange={e => setAddress(e.target.value)} />
+                <input
+                  type="text"
+                  placeholder="Enter address"
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                />
                 <label>Contact Number:</label>
-                <input type="text" placeholder="Enter contact" value={contactNumber} onChange={e => setContactNumber(e.target.value)} />
+                <input
+                  type="tel"
+                  pattern="[0-9]{10,13}"
+                  maxLength="13"
+                  placeholder="Enter contact number"
+                  value={contactNumber}
+                  onChange={e => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) setContactNumber(value);
+                  }}
+                  required
+                />
               </div>
               <div className="summary-items">
                 {selectedItems.map(i => (
@@ -255,7 +291,9 @@ function Cart() {
                 <p>Shipping: ₱{shipping.toFixed(2)}</p>
                 <p>Discount: ₱{discount.toFixed(2)}</p>
               </div>
-              <button className="place-order-btn" onClick={handlePlaceOrder}>Place order</button>
+              <button className="place-order-btn" onClick={handlePlaceOrder}>
+                Place order
+              </button>
             </motion.div>
           </motion.div>
         )}
@@ -263,8 +301,19 @@ function Cart() {
 
       <AnimatePresence>
         {showPaymentMethod && (
-          <motion.div className="order-summary-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="order-summary-popup" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
+          <motion.div
+            className="order-summary-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="order-summary-popup"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
               <PaymentMethodPopup
                 selectedPayment={selectedPayment}
                 setSelectedPayment={setSelectedPayment}

@@ -39,15 +39,21 @@ function UploadOrderPage({ onCancel }) {
       alert("Please complete all required fields including image upload.");
       return;
     }
-
+  
     if (productPrice <= 0 || productQuantity < 0) {
       alert("Price must be more than ₱0 and quantity cannot be negative.");
       return;
     }
-
+  
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      alert("❌ Not logged in or failed to fetch user.");
+      return;
+    }
+  
     const imageUrl = await uploadImageToStorage();
     if (!imageUrl) return;
-
+  
     const { error } = await supabase.from('products').insert([
       {
         name: productName,
@@ -55,10 +61,10 @@ function UploadOrderPage({ onCancel }) {
         price: parseFloat(productPrice),
         quantity: parseInt(productQuantity),
         image_url: imageUrl,
-        is_sold_out: !isPublish,
+        is_sold_out: !isPublish, // ✅ Add this line
       },
     ]);
-
+  
     if (error) {
       alert('❌ Product insert failed: ' + error.message);
       console.error('Insert failed:', error);
@@ -73,6 +79,7 @@ function UploadOrderPage({ onCancel }) {
       onCancel();
     }
   };
+  
 
   return (
     <div className="upload-container">

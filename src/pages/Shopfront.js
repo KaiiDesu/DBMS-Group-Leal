@@ -20,15 +20,26 @@ function Shopfront() {
   const [buyQty, setBuyQty] = useState(1);
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
 
   const navigate = useNavigate();
   const toggleUserDropdown = () => setIsDropdownOpen(open => !open);
 
   useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/login');
+      }
+    };
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
     const fetchProducts = async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, price, image_url, description, is_sold_out');
+        .select('id, name, price, quantity, image_url, description, is_sold_out');
       if (!error) setProducts(data);
     };
     fetchProducts();
@@ -38,6 +49,17 @@ function Shopfront() {
     const stored = JSON.parse(localStorage.getItem('cart')) || [];
     setCartItems(stored);
   }, [cartPreviewOpen]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowDisclaimer(true);
+    }, 120000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleAcceptDisclaimer = () => {
+    setShowDisclaimer(false);
+  };
 
   const handleBuyNow = (product) => {
     setSelectedProd(product);
@@ -82,11 +104,31 @@ function Shopfront() {
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
-    if (!error) window.location.href = '/login';
+    if (!error) navigate('/login');
   };
 
   return (
     <div className="App">
+      {showDisclaimer && (
+        <div className="disclaimer-backdrop">
+          <div className="disclaimer-box">
+            <button className="disclaimer-close" onClick={() => navigate('/login')}>×</button>
+            <div className="disclaimer-header">DISCLAIMER</div>
+            <div className="disclaimer-age-circle">
+              <span className="age-text">21+</span>
+            </div>
+            <h3 className="disclaimer-warning">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</h3>
+            <p className="disclaimer-text">
+              This site contains products only suitable for those aged 21 and over.
+              Please exit if you are underage. By clicking accept, you confirm that
+              you are of legal smoking age in your jurisdiction and agree to our terms and conditions.
+            </p>
+            <p className="disclaimer-terms">Terms & Conditions</p>
+            <button className="disclaimer-accept" onClick={handleAcceptDisclaimer}>I Accept</button>
+          </div>
+        </div>
+      )}
+      
       {/* ——— Logout Popup ——— */}
       <AnimatePresence>
         {showLogoutPopup && (
@@ -118,7 +160,7 @@ function Shopfront() {
             <span className="nav-item" onClick={() => navigate('/contact')}>Contact Us</span>
           </div>
           <div style={{ position: 'relative' }}>
-            <button className="icon-btn" onClick={toggleCartPreview}><img src="/cart-icon.png" alt="Cart" /></button>
+            <button className="icon-btn" onClick={toggleCartPreview}><img src={`${process.env.PUBLIC_URL}/cart-icon.png`} /></button>
             {cartPreviewOpen && (
               <div className="cart-preview-dropdown">
                 {cartItems.length === 0 ? (
@@ -139,7 +181,7 @@ function Shopfront() {
 
       {/* ——— Hero Section ——— */}
       <section className="hero-section">
-        <img src="/logovape.png" alt="Vape Bureau Logo" className="hero-logo" />
+        <img src={`${process.env.PUBLIC_URL}/logovape.png`} alt="Vape Bureau Logo" className="hero-logo" />
         <div className="search-bar">
           <input type="text" placeholder="Search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           <button className="search-btn" />
