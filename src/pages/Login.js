@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef,} from 'react';
 import './Login.css';
 import logo from '../pages/logovape.png';
 import { supabase } from '../supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Popup from '../components/Popup';
 import { video } from 'framer-motion/client';
+import Swal from 'sweetalert2';
+import logos from '../components/images/21age.png'
 
 function Login() {
   const [formType, setFormType] = useState('login');
@@ -13,7 +15,6 @@ function Login() {
   const [redirectAfterPopup, setRedirectAfterPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [showCamera, setShowCamera] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [confirmCapture, setConfirmCapture] = useState(false);
@@ -23,24 +24,50 @@ function Login() {
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const navigate = useNavigate();
+ const [showPassword, setShowPassword] = useState(false);
+ const location = useLocation();
+const queryParams = new URLSearchParams(location.search);
+const prefilledEmail = queryParams.get('email') || '';
+
 
   const [formData, setFormData] = useState({
-    email: '', password: '', firstName: '', lastName: '', phone: '', gender: '', birthdate: '',
+    email: prefilledEmail, password: '', firstName: '', lastName: '', phone: '', gender: '', birthdate: '',
     idUpload: null, otp: '', newPassword: '', confirmPassword: '', idType: '', idNumber: '',
     idFront: null, idBack: null, termsAgreed: false, infoConfirmed: false
   });
 
-  useEffect(() => {
-    const accepted = sessionStorage.getItem('disclaimerAccepted');
-    if (accepted) setShowDisclaimer(false);
-    const interval = setInterval(() => setShowDisclaimer(true), 120000);
-    return () => clearInterval(interval);
-  }, []);
+const showDisclaimer = () => {
+  Swal.fire({
+    title: 'DISCLAIMER',
+    html: `
+      <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
+      This site contains products only suitable for those aged 21 and over. 
+      Please exit if you are underage.<br><br>
+      By clicking accept, you confirm that you are of legal smoking age 
+      and agree to our <a href="/terms" target="_blank">Terms and Conditions</a>.
+    `,
+    imageUrl: logos,
+    imageWidth: 220,
+    imageHeight: 200,
+    imageAlt: '21+ Icon',
+    showCancelButton: false,
+    confirmButtonText: 'I Accept',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    customClass: { popup: 'swal2-disclaimer' }
+  });
+};
+useEffect(() => {
+  showDisclaimer(); // show on page load
 
-  const handleAcceptDisclaimer = () => {
-    sessionStorage.setItem('disclaimerAccepted', 'true');
-    setShowDisclaimer(false);
-  };
+  const interval = setInterval(() => {
+    showDisclaimer(); // repeat every 60 seconds
+  }, 60000);
+
+  return () => clearInterval(interval); // clean up
+}, []);
+
+
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -79,81 +106,289 @@ function Login() {
     setFormData({ ...formData, [name]: fieldValue });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { email, password, firstName, lastName, phone } = formData;
-
-    if (formType === 'signup' && (!formData.termsAgreed || !formData.infoConfirmed)) {
-      return alert("Please accept the terms and confirm the information.");
-    }
-
-    if (formType === 'signup') {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
-      if (signUpError) return alert('Signup failed: ' + signUpError.message);
-
-      const userId = signUpData.user?.id;
-      if (!userId) return alert('Signup succeeded but no user ID found.');
-
-      // Insert empty profile row to trigger later update
-      await supabase.from('profiles').insert([{ id: userId, email }]);
-
-      setPopupMsg('Signup successful! Please check your email to complete registration.');
-      return;
-    }
-
-    if (formType === 'login') {
-      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return setPopupMsg('Login failed: ' + error.message);
-      const user = authData.user;
-
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile || profileError) {
-        let frontUrl = '';
-        let backUrl = '';
-
-        if (formData.idFront) {
-          const { error } = await supabase.storage.from('iduploads').upload(`ids/${user.id}-front.png`, formData.idFront, { upsert: true });
-          if (error) return alert('Front ID upload failed: ' + error.message);
-          frontUrl = supabase.storage.from('iduploads').getPublicUrl(`ids/${user.id}-front.png`).data.publicUrl;
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setShowCamera(true);
+      setIdDetected(false);
+      setTimeout(() => {
+        if (videoRef.current) {
+          streamRef.current = stream;
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(err => console.error("Playback error:", err));
         }
-
-        if (formData.idBack) {
-          const { error } = await supabase.storage.from('iduploads').upload(`ids/${user.id}-back.png`, formData.idBack, { upsert: true });
-          if (error) return alert('Back ID upload failed: ' + error.message);
-          backUrl = supabase.storage.from('iduploads').getPublicUrl(`ids/${user.id}-back.png`).data.publicUrl;
-        }
-
-        const { error: updateError } = await supabase.from('profiles').update({
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phone,
-          id_front_url: frontUrl,
-          id_back_url: backUrl,
-          gender: formData.gender,
-          birthdate: formData.birthdate,
-          id_type: formData.idType,
-          id_number: formData.idNumber
-        }).eq('id', user.id);
-
-        if (updateError) return alert('Profile update failed: ' + updateError.message);
-      }
-
-      setPopupMsg('Login successful!');
-      setRedirectAfterPopup(true);
-      resetForm();
+      }, 100);
+      setTimeout(() => setIdDetected(true), 5000);
+    } catch (err) {
+      console.error('Camera error:', err.name, err.message);
     }
   };
 
-  return <div className="login-container">
-    <img src={logo} alt="Logo" className="login-logo" />
-    {popupMsg && <Popup message={popupMsg} onClose={() => setPopupMsg('')} buttonText={redirectAfterPopup ? 'Continue' : 'Okay'} />}
-    <form onSubmit={handleSubmit} className="login-form">
-      <h2>{formType === 'signup' ? 'Sign Up' : 'Login'}</h2>
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas) {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.translate(canvas.width, 0);
+      context.scale(-1, 1);
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const stream = video.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+      canvas.toBlob(blob => {
+        const newFile = new File([blob], 'captured-id.png', { type: 'image/png' });
+        setPreviewImage(URL.createObjectURL(blob));
+        setFormData(prev => ({ ...prev, idUpload: newFile }));
+        setPreviewCaptured(true);
+      });
+    }
+  };
+
+  const retakePhoto = () => {
+    setPreviewCaptured(false);
+    setPreviewImage(null);
+    startCamera();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { email, password, firstName, lastName, phone, idUpload, termsAgreed, infoConfirmed } = formData;
+  
+    if (formType === 'signup' && (!termsAgreed || !infoConfirmed)) {
+      return alert("Please accept the terms and confirm the information.");
+    }
+  
+if (formType === 'signup') {
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+  if (signUpError) return alert('Signup failed: ' + signUpError.message);
+
+    const userId = signUpData.user?.id || signUpData.session?.user?.id;
+    if (!userId) return alert('Signup succeeded but no user ID found.');
+
+  let frontUrl = '';
+  let backUrl = '';
+
+  const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+  if (!sessionData.session || sessionErr) {
+    console.error('Session not active or error:', sessionErr);
+    return alert('Session not active. Please login again.');
+  }
+
+  // ✅ Upload front ID
+  if (formData.idFront) {
+    if (!formData.idFront.type.startsWith('image/')) {
+      return alert('Front ID must be an image file.');
+    }
+    if (formData.idFront.size > 5 * 1024 * 1024) {
+      return alert('Front ID image is too large. Max size is 5MB.');
+    }
+
+    const { error: uploadFrontError } = await supabase.storage
+      .from('iduploads')
+      .upload(`ids/${userId}-front.png`, formData.idFront, {
+        upsert: true,
+        cacheControl: '3600',
+      });
+
+    if (uploadFrontError) {
+      console.error('Front ID upload error:', uploadFrontError);
+      return alert('Front ID upload failed: ' + uploadFrontError.message);
+    }
+
+    frontUrl = supabase.storage
+      .from('iduploads')
+      .getPublicUrl(`ids/${userId}-front.png`).data.publicUrl;
+  }
+
+  // ✅ Upload back ID
+  if (formData.idBack) {
+    if (!formData.idBack.type.startsWith('image/')) {
+      return alert('Back ID must be an image file.');
+    }
+    if (formData.idBack.size > 5 * 1024 * 1024) {
+      return alert('Back ID image is too large. Max size is 5MB.');
+    }
+
+    const { error: uploadBackError } = await supabase.storage
+      .from('iduploads')
+      .upload(`ids/${userId}-back.png`, formData.idBack, {
+        upsert: true,
+        cacheControl: '3600',
+      });
+
+    if (uploadBackError) {
+      console.error('Back ID upload error:', uploadBackError);
+      return alert('Back ID upload failed: ' + uploadBackError.message);
+    }
+
+    backUrl = supabase.storage
+      .from('iduploads')
+      .getPublicUrl(`ids/${userId}-back.png`).data.publicUrl;
+  }
+
+  // ✅ Insert into registree_requests
+  const { error: registreeError } = await supabase.from('registree_requests').insert([{
+    id: userId,
+    first_name: formData.firstName,
+    last_name: formData.lastName,
+    email,
+    phone_number: formData.phone,
+    birthdate: formData.birthdate,
+    gender: formData.gender,
+    id_type: formData.idType,
+    id_number: formData.idNumber,
+    id_front_url: frontUrl,
+    id_back_url: backUrl
+  }]);
+
+  if (registreeError) {
+    console.error('Insert registree error:', registreeError);
+    return alert('Failed to submit for verification: ' + registreeError.message);
+  }
+
+  await Swal.fire({
+  title: 'Success!',
+  text: 'Sign-up successful! Your ID has been submitted for review. You’ll receive an email once approved.',
+  icon: 'success',
+  confirmButtonText: 'Okay',
+  customClass: { popup: 'swal2-login-success' }
+});
+  resetForm();
+  return;
+    } else {
+      try {
+        const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          await Swal.fire({
+            title: 'Login Failed',
+            text: error.message || 'Invalid credentials.',
+            icon: 'error',
+            confirmButtonText: 'Okay',
+            customClass: { popup: 'swal2-login-error' }
+          });
+          return;
+        }
+
+        const user = authData.user;
+
+        // Check if user exists in `profiles`
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (!profile || profileError) {
+          const { data: pendingUser, error: pendingError } = await supabase
+            .from('registree_requests')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (pendingUser && !pendingError) {
+            await Swal.fire({
+              title: 'Pending Verification',
+              text: 'Your account is still under review. Please wait for approval.',
+              icon: 'info',
+              confirmButtonText: 'Okay',
+              customClass: { popup: 'swal2-login-info' }
+            });
+            return;
+          }
+
+          await Swal.fire({
+            title: 'Access Denied',
+            text: 'This is not a customer account.',
+            icon: 'error',
+            confirmButtonText: 'Okay',
+            customClass: { popup: 'swal2-login-error' }
+          });
+          return;
+        }
+
+        await Swal.fire({
+          title: 'Login Successful!',
+          text: 'Welcome back to Vape Bureau!',
+          icon: 'success',
+          confirmButtonText: 'Continue',
+          customClass: { popup: 'swal2-login-success' }
+        });
+
+        navigate('/shopfront');
+
+      } catch (err) {
+        await Swal.fire({
+          title: 'Unexpected Error',
+          text: err.message || 'Something went wrong.',
+          icon: 'error',
+          confirmButtonText: 'Okay',
+          customClass: { popup: 'swal2-login-error' }
+        });
+      }
+      }
+    };
+    return (
+        <>
+{showCamera && (
+  <div className="camera-popup">
+    <div className="camera-popup-modal">
+      {!previewCaptured ? (
+        <>
+        <div className="camera-frame-overlay"
+        />
+          <video ref={videoRef} autoPlay playsInline muted
+            style={{
+              width: '100%',
+              maxHeight: '300px',
+              background: '#000',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              transform: 'scaleX(-1)'
+            }}
+          />
+          <div className="camera-btns">
+            <button onClick={capturePhoto}>Capture</button>
+            <button onClick={() => setShowCamera(false)}>Cancel</button>
+          </div>
+        </>
+      ) : (
+        <>
+        
+          <img src={previewImage} alt="Captured Preview"
+            style={{ width: '100%', borderRadius: '8px', marginBottom: '16px' }}
+          />
+        </>
+      )}
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+    </div>
+  </div>
+)}
+
+
+ 
+      {confirmCapture && previewImage && (
+        <div className="camera-preview-modal">
+          <img src={previewImage} alt="Captured ID Preview" />
+          <button onClick={() => setConfirmCapture(false)}>Send Photo</button>
+        </div>
+      )}
+
+      <div className="login-container">
+        <a href="/"><img src={logo} alt="Logo" className="login-logo" /></a>
+        
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <p className="switch-text">
+            {formType === 'signup' ? 'Have an account? ' : "Don't have an account? "}
+            <span onClick={() => switchForm(formType === 'signup' ? 'login' : 'signup')}>
+              {formType === 'signup' ? 'Login' : 'Register'}
+            </span>
+          </p>
+
+          <h2>{formType === 'signup' ? 'Sign Up' : 'Login'}</h2>
 
           {formType === 'signup' && (
             <>
@@ -193,7 +428,6 @@ function Login() {
     <option value="PhilHealth ID">PhilHealth ID</option>
     <option value="SSS ID">SSS ID</option>
     <option value="UMID">UMID</option>
-    <option value="Student ID">Student ID</option>
     <option value="National ID">National ID</option>
   </select>
 </div>
@@ -284,6 +518,6 @@ function Login() {
       </div>
     </>
   );
-}
+};
 
 export default Login;

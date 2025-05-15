@@ -22,6 +22,26 @@ function SellerLogin() {
   const [popupMsg, setPopupMsg] = useState('');
   const [redirectAfterPopup, setRedirectAfterPopup] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      const { data: seller } = await supabase
+        .from('sellers')
+        .select('id')
+        .eq('id', session.user.id)
+        .single();
+
+      if (seller) {
+        navigate('/seller-dashboard');
+      }
+    }
+  };
+
+  checkSession();
+}, []);
+
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
 
   useEffect(() => {

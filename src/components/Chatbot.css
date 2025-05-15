@@ -187,3 +187,56 @@
     height: 50px;
     object-fit: contain;
   }
+
+  @media (max-width: 768px) {
+
+    .chatbot-icon {
+      width: 100px;
+      height: 100px;
+    }
+
+    .chatbot-popup {
+      width: 200px;
+      height: 300px;
+    }
+
+    .chatbot-title {
+      font-size: 12px;
+    }
+
+    .chat-msg.bot {
+      font-size: 12px;
+    }
+
+    .chat-msg.user {
+      font-size: 12px;
+    }
+
+      .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 10px 16px;
+    margin-bottom: 10px;
+  }
+  
+  .typing-indicator .dot {
+    width: 3px;
+    height: 3px;
+    background-color: #555;
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+  
+  .typing-indicator .dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  .typing-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  .chatbot-input button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  }

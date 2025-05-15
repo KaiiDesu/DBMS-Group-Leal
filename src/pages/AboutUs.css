@@ -108,3 +108,24 @@
     }
   }
   
+  @media (max-width: 480px) {
+    .about-header h1 {
+      font-size: 2rem;
+    }
+    .about-header p {
+      font-size: 1rem;
+    }
+    .text-block h2 {
+      font-size: 1.5rem;
+    }
+    .text-block p {
+      font-size: 0.9rem;
+    }
+
+    .about-back-btn {
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      margin-right: 100px;
+      left: 20px;
+    }
+  }

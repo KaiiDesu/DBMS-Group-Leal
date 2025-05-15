@@ -109,4 +109,54 @@
     background-color: #f0f0f0;
   }
   
-  
+  @media (max-width: 768px) {
+  .payment-popup {
+    width: 50vw;
+    padding: 20px;
+  }
+
+  .payment-popup h3 {
+    font-size: 18px;
+  }
+
+  .payment-subtext {
+    font-size: 12px;
+  }
+
+  .payment-options {
+    gap: 8px;
+  }
+
+  .payment-option {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 10px;
+  }
+
+  .payment-option span {
+    font-size: 14px;
+  }
+
+  .payment-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+  }
+
+  .checkmark {
+    font-size: 14px;
+  }
+
+  .continue-btn,
+  .back-btn {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .corner-back-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+    top: 10px;
+    left: 10px;
+  }
+}

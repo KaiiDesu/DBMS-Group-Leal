@@ -24,6 +24,7 @@
 }
 
 .cart-title {
+  margin-top: 50px;
   text-align: center;
   font-weight: 600;
   font-size: 20px;
@@ -54,6 +55,8 @@
   cursor: pointer;
   padding-right: 20px;
 }
+
+
 
 .cart-table {
   width: 100%;
@@ -140,6 +143,8 @@
   z-index: 1000; /* Make sure this is above your main content */
 }
 
+
+
 .order-summary-popup, .payment-popup {
   background: white;
   padding: 30px;
@@ -161,34 +166,41 @@
   margin-bottom: 20px;
   color: #000054;
   font-weight: bold;
+    font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  
 }
 
 .order-summary-popup .edit-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
+  border-radius: 4px; /* or 0px for sharp corners */
+  padding: 8px 16px;
+  background-color: #ffffff;
   color: #000054;
-  padding: 5px;
-  border-radius: 50%;
-  transition: background 0.2s ease;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
 }
 
+
 .order-summary-popup .edit-btn:hover {
-  background-color: #eee;
+  background-color: #cac6c6;
 }
 
 .order-summary-popup input {
   width: 100%;
   margin-bottom: 12px;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .summary-item {
@@ -196,6 +208,10 @@
   align-items: center;
   gap: 12px;
   margin-top: 20px;
+    width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .summary-item img {
@@ -213,14 +229,15 @@
 .place-order-btn {
   background: black;
   color: white;
-  padding: 12px;
   width: 100%;
   margin-top: 20px;
   border: none;
-  border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s ease;
+  font-size: 14px;
+  padding: 10px 18px;
+  border-radius: 6px;
 }
 
 .place-order-btn:hover {
@@ -487,4 +504,196 @@
 .floating-back-button .back-btn:hover {
   background: white;
   color: #000054;
+}
+
+.summary-item.full {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+
+.summary-info {
+  flex-grow: 1;
+  margin-left: 12px;
+}
+
+.item-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: #000;
+   font-size: 13px;
+  font-weight: 500;
+}
+
+.item-price {
+  font-size: 13px;
+  color: #666;
+  font-size: 13px;
+}
+
+.item-total {
+  font-weight: bold;
+  color: #000054;
+  font-size: 14px;
+  min-width: 80px;
+  text-align: right;
+  font-size: 13px;
+}
+
+.refund-policy-section {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #000;
+  line-height: 1.4;
+    font-size: 15px;
+  margin-top: 20px;
+}
+
+.refund-policy-section hr {
+  border: none;
+  border-top: 2px solid #000;
+  margin: 12px 0;
+}
+
+.refund-policy-section h4 {
+  margin: 6px 0;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.refund-description {
+  font-size: 12px;
+  color: #444;
+    font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.legal-disclaimer {
+  font-size: 12px;
+  color: #444;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.bold-text {
+  font-weight: bold;
+  color: black;
+}
+
+
+
+@media (max-width: 768px) {
+
+  .back-btn {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .cart-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .cart-title {
+    margin-left: 0;
+  }
+
+  .cart-table {
+    font-size: 12px;
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+  }
+
+  .cart-table th,
+  .cart-table td {
+    padding: 10px;
+  }
+
+  .cart-table img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cart-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .cart-summary {
+    text-align: left;
+  }
+
+  .checkout-btn {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .order-summary-popup,
+  .payment-popup {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .summary-item img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .summary-item {
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .summary-details {
+    font-size: 14px;
+  }
+
+  .form label {
+  font-size: 14px;
+  font-size: 13px;
+  margin-bottom: 4px;
+  }
+
+  .form input {
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  }
+
+  .payment-option span {
+    font-size: 14px;
+  }
+
+  .continue-btn,
+  .back-btn {
+    font-size: 14px;
+  }
+
+.back-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  width: auto; /* ✅ Fixes the shrinking */
+  max-width: 120px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+  .summary-item.full {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .item-total {
+    align-self: flex-end;
+  }
 }

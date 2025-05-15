@@ -32,14 +32,13 @@
     align-items: center;
     gap: 20px;
   }
-  .navbar-mid {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    color: #000;
-    font-weight: bold;
-    white-space: nowrap;
-  }
+.navbar-right {
+  justify-content: center;
+  flex-wrap: wrap;
+  text-align: center;
+  gap: 16px;
+  width: 100%;
+}
   .nav-item {
     cursor: pointer;
   }
@@ -260,3 +259,57 @@
     border-radius: 8px;
   }
   
+  @media (max-width: 768px) {
+  .orders-container {
+    padding: 10px;
+  }
+
+  .orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .orders-header h2 {
+    font-size: 18px;
+  }
+
+  .search-bar {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .orders-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    font-size: 13px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 8px;
+    white-space: nowrap;
+  }
+
+  .order-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-actions button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .status-box {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
+
+  .no-orders {
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 10px;
+  }
+}

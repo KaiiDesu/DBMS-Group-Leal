@@ -1,36 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Shopfront.css';
 import { supabase } from '../supabaseClient';
-import LogoutPopup from '../components/LogoutPopup';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import Chatbot from '../components/Chatbot';
+import logo from '../components/logovape.png';
 
-function Shopfront() {
+function Shopfront({ previewMode = false }) {
+  const scrollTargetRef = useRef(null);
   const [products, setProducts] = useState([]);
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [cartPreviewOpen, setCartPreviewOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showQtyPopup, setShowQtyPopup] = useState(false);
   const [selectedProd, setSelectedProd] = useState(null);
   const [buyQty, setBuyQty] = useState(1);
   const [showDetailPopup, setShowDetailPopup] = useState(false);
   const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const getProductSlice = (page) => {
+    if (page === 1) return [0, 6];
+    const start = 6 + (page - 2) * 9;
+    const end = start + 9;
+    return [start, end];
+  };
+
+  const [startIdx, endIdx] = getProductSlice(currentPage);
+  const currentProducts = products.slice(startIdx, endIdx);
+  const totalPages = Math.ceil((products.length - 6) / 9) + 1;
 
   const navigate = useNavigate();
   const toggleUserDropdown = () => setIsDropdownOpen(open => !open);
 
   useEffect(() => {
+  if (!previewMode) {
+    Swal.fire({
+      title: '21+ DISCLAIMER',
+      html: `
+        <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
+        This site contains products only suitable for ages 21 and above. Please exit if you do not meet the reqruired age. 
+        <br><br>
+        By clicking accept, you confirm that you are of legal smoking age 
+        and agree to our <a href="/terms" target="_blank">terms and conditions</a>.
+      `,
+      icon: 'warning',
+      showCancelButton: false,
+      confirmButtonText: 'I Accept',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      customClass: {
+        popup: 'swal2-disclaimer',
+      }
+    }).then(() => {
+      setShowDisclaimer(false);
+    });
+  }
+}, []);
+
+
+  useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-      }
+      console.log('Current user:', user);
     };
     checkAuth();
   }, []);
@@ -57,23 +92,30 @@ function Shopfront() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleAcceptDisclaimer = () => {
-    setShowDisclaimer(false);
-  };
+  const handleAcceptDisclaimer = () => setShowDisclaimer(false);
 
-  const handleBuyNow = (product) => {
-    setSelectedProd(product);
-    setBuyQty(1);
-    setShowQtyPopup(true);
-  };
+  const handleBuyNow = async (product) => {
+    const { value: quantity } = await Swal.fire({
+      title: `Buy ${product.name}`,
+      input: 'number',
+      inputLabel: 'Quantity',
+      inputValue: 1,
+      inputAttributes: {
+        min: 1,
+        step: 1
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel'
+    });
 
-  const handleConfirmBuy = () => {
-    const cur = JSON.parse(localStorage.getItem('cart')) || [];
-    const filtered = cur.filter(i => i.id !== selectedProd.id);
-    const updated = [...filtered, { ...selectedProd, quantity: buyQty }];
-    localStorage.setItem('cart', JSON.stringify(updated));
-    setShowQtyPopup(false);
-    navigate('/cart', { state: { directCheckout: true } });
+    if (quantity && !isNaN(quantity)) {
+      const cur = JSON.parse(localStorage.getItem('cart')) || [];
+      const filtered = cur.filter(i => i.id !== product.id);
+      const updated = [...filtered, { ...product, quantity: +quantity }];
+      localStorage.setItem('cart', JSON.stringify(updated));
+      navigate('/cart', { state: { directCheckout: true } });
+    }
   };
 
   const toggleCartPreview = () => setCartPreviewOpen(!cartPreviewOpen);
@@ -102,48 +144,62 @@ function Shopfront() {
     });
   };
 
+useEffect(() => {
+  const checkAccess = async () => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', session.session.user.id)
+      .single();
+
+    if (!profile) {
+      navigate('/login'); // block seller access to customer side
+    }
+  };
+
+  checkAccess();
+}, []);
+
+
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) navigate('/login');
+    const confirm = await Swal.fire({
+      title: 'Logout',
+      text: 'Are you sure you want to logout?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Logout',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (confirm.isConfirmed) {
+      const { error } = await supabase.auth.signOut();
+      if (!error) navigate('/');
+    }
+  };
+
+  const scrollToProductSection = () => {
+    scrollTargetRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
   };
 
   return (
     <div className="App">
-      {showDisclaimer && (
-        <div className="disclaimer-backdrop">
-          <div className="disclaimer-box">
-            <button className="disclaimer-close" onClick={() => navigate('/login')}>×</button>
-            <div className="disclaimer-header">DISCLAIMER</div>
-            <div className="disclaimer-age-circle">
-              <span className="age-text">21+</span>
-            </div>
-            <h3 className="disclaimer-warning">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</h3>
-            <p className="disclaimer-text">
-              This site contains products only suitable for those aged 21 and over.
-              Please exit if you are underage. By clicking accept, you confirm that
-              you are of legal smoking age in your jurisdiction and agree to our terms and conditions.
-            </p>
-            <p className="disclaimer-terms">Terms & Conditions</p>
-            <button className="disclaimer-accept" onClick={handleAcceptDisclaimer}>I Accept</button>
-          </div>
+      {previewMode && (
+        <div className="preview-banner">
+          You're browsing as a guest. <a href="/login">Login</a> or <a href="/login">Register</a> to purchase.
         </div>
       )}
-      
-      {/* ——— Logout Popup ——— */}
-      <AnimatePresence>
-        {showLogoutPopup && (
-          <motion.div className="logout-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="logout-modal" initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 30, opacity: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
-              <LogoutPopup onConfirm={handleLogout} onCancel={() => setShowLogoutPopup(false)} />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* ——— Header ——— */}
+
+
       <header className="navbar">
         <div className="navbar-left">
-          <img src="/logovape.png" alt="Logo" className="nav-logo" />
+          <a href="#/shopfront"><img src={logo} alt="Logo" className="nav-logo" /></a>
           <span className="brand-name">Vape Bureau PH</span>
         </div>
         <div className="navbar-right">
@@ -153,11 +209,10 @@ function Shopfront() {
               <div className={`dropdown-content ${isDropdownOpen ? 'show' : ''}`}>
                 <button onClick={() => navigate('/profile')}>Profile</button>
                 <button onClick={() => navigate('/order')}>Orders</button>
-                <button onClick={() => setShowLogoutPopup(true)}>Logout</button>
+                <button onClick={handleLogout}>Logout</button>
               </div>
             </div>
             <span className="nav-item" onClick={() => navigate('/about')}>About Us</span>
-            <span className="nav-item" onClick={() => navigate('/contact')}>Contact Us</span>
           </div>
           <div style={{ position: 'relative' }}>
             <button className="icon-btn" onClick={toggleCartPreview}><img src={`${process.env.PUBLIC_URL}/cart-icon.png`} /></button>
@@ -179,7 +234,7 @@ function Shopfront() {
         </div>
       </header>
 
-      {/* ——— Hero Section ——— */}
+
       <section className="hero-section">
         <img src={`${process.env.PUBLIC_URL}/logovape.png`} alt="Vape Bureau Logo" className="hero-logo" />
         <div className="search-bar">
@@ -189,9 +244,10 @@ function Shopfront() {
         <p>Welcome to Vape Bureau, your ultimate destination for all things vape!</p>
       </section>
 
-      {/* ——— Products ——— */}
+
+      <div ref={scrollTargetRef}></div>
       <section className="products-section">
-        {products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map((item) => (
+        {currentProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map((item) => (
           <div className="product-card" key={item.id} onClick={() => {
             setSelectedDetailProduct(item);
             setShowDetailPopup(true);
@@ -200,38 +256,59 @@ function Shopfront() {
             <h3>{item.name}</h3>
             <p>SRP: ₱{item.price}</p>
             <p className="product-description">{item.description}</p>
-            {item.is_sold_out ? (
-              <p style={{ color: '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
-            ) : (
-              <div className="buttons">
-                <button className="compare-btn" onClick={(e) => { e.stopPropagation(); handleAddToCart(item); }}>+ Add to Cart</button>
-                <button className="buy-btn" onClick={(e) => { e.stopPropagation(); handleBuyNow(item); }}>Buy now</button>
-              </div>
-            )}
+{item.is_sold_out ? (
+  <p style={{ color: '#D397F8', fontWeight: 'bold' }}>SOLD OUT</p>
+) : previewMode ? (
+  <div className="preview-disabled-buttons">
+    <button disabled className="compare-btn">Login to Add</button>
+    <button disabled className="buy-btn">Login to Buy</button>
+  </div>
+) : (
+  <div className="buttons">
+    <button className="compare-btn" onClick={(e) => { e.stopPropagation(); handleAddToCart(item); }}>+ Add to Cart</button>
+    <button className="buy-btn" onClick={(e) => { e.stopPropagation(); handleBuyNow(item);}}
+>
+  Buy now
+</button>
+  </div>
+)}
+
           </div>
         ))}
       </section>
 
-      {/* ——— Quantity Popup ——— */}
-      <AnimatePresence>
-        {showQtyPopup && (
-          <motion.div className="qty-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="qty-modal" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
-              <h3>Product: {selectedProd?.name}</h3>
-              <label>Quantity:
-                <input type="number" min="1" value={buyQty} onChange={e => setBuyQty(Math.max(1, +e.target.value))} />
-              </label>
-              <div className="qty-actions">
-                <button className="cancel-btn" onClick={() => setShowQtyPopup(false)}>Cancel</button>
-                <button className="confirm-btn" onClick={handleConfirmBuy}>Confirm</button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+<div className="pagination-controls">
+        <button
+  className="prev-btn"
+  onClick={() => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+    scrollToProductSection();
+  }}
+  disabled={currentPage === 1}
+>
+  ← Prev
+</button>
+        <span className="page-number">{currentPage}</span>
+<button
+  className="next-btn"
+  onClick={() => {
+    const nextPage = currentPage + 1;
+    const totalPages = Math.ceil((products.length - 6) / 9) + 1;
+    if (nextPage <= totalPages) {
+      setCurrentPage(nextPage);
+      scrollToProductSection();
+    }
+  }}
+  disabled={currentPage >= Math.ceil((products.length - 6) / 9) + 1}
+>
+  Next →
+</button>
+      </div>
 
-      {/* ——— Product Detail Modal ——— */}
-{/* ——— Product Detail Modal ——— */}
+
+
+
+
 <AnimatePresence>
   {showDetailPopup && selectedDetailProduct && (
     <motion.div
@@ -239,7 +316,7 @@ function Shopfront() {
   initial={{ opacity: 0 }}
   animate={{ opacity: 1 }}
   exit={{ opacity: 0 }}
-  onClick={() => setShowDetailPopup(false)} // ✅ this closes on click
+  onClick={() => setShowDetailPopup(false)} 
 >
 <motion.div
     className="order-summary-popup detail-popup"
@@ -247,7 +324,7 @@ function Shopfront() {
     animate={{ y: 0, opacity: 1 }}
     exit={{ y: 50, opacity: 0 }}
     transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-    onClick={(e) => e.stopPropagation()} // ✅ this prevents inner box from closing it
+    onClick={(e) => e.stopPropagation()} 
   >
         <div className="detail-content">
           <div className="image-wrapper">
@@ -268,6 +345,25 @@ function Shopfront() {
     </motion.div>
   )}
 </AnimatePresence>
+<footer className="shop-footer">
+  <div className="footer-left">
+    <img src={logo} alt="Vape Logo" className="footer-logo" />
+  </div>
+  <div className="footer-center">
+    <h4>Contacts</h4>
+    <p>
+      Have questions, feedback, or need assistance? Our team is here to help!<br />
+      Whether you're inquiring about our services, want to collaborate, or just want to say hello —
+      don’t hesitate to reach out.
+    </p>
+  </div>
+  <div className="footer-right">
+    <p>📍 826 Matimyas St. Sampaloc Manila</p>
+    <p>📞 09453202818</p>
+    <p>📧 <a href="mailto:VapeBureauPh@gmail.com">VapeBureauPh@gmail.com</a></p>
+    <p>🔵 Vape Bureau Ph</p>
+  </div>
+</footer>
 
 <Chatbot />
     </div>

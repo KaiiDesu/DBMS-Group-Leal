@@ -8,12 +8,46 @@ import LogoutPopup from '../components/LogoutPopup';
 import InventoryPage from './InventoryPage';
 import UploadOrderPage from './UploadOrderPage';
 import SellerOrders from './SellerOrders';
+import RegistreeTab from './RegistreeTab';
 
 function SellerDashboard() {
   const [activeView, setActiveView] = useState('home');
   const [showLogout, setShowLogout] = useState(false);
   const navigate = useNavigate();
   const [sellerName, setSellerName] = useState('');
+
+useEffect(() => {
+  const checkAccess = async () => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) return;
+
+    const { data: seller } = await supabase
+      .from('sellers')
+      .select('id')
+      .eq('id', session.session.user.id)
+      .single();
+
+    if (!seller) {
+      navigate('/seller-login'); // block customer access to seller side
+    }
+  };
+
+  checkAccess();
+}, []);
+
+
+
+const approveUser = async (userId) => {
+  const { data, error } = await supabase
+    .rpc('approve_registree', { input_user_id: userId }); // matches the SQL function name
+
+  if (error) {
+    console.error("Approval failed:", error);
+    alert("Failed to approve user.");
+  } else {
+    alert("User approved successfully.");
+  }
+};
 
   useEffect(() => {
     const fetchSellerName = async () => {
@@ -63,50 +97,53 @@ function SellerDashboard() {
       <aside className="sidebar">
         <img src={logo} alt="Logo" className="logo" />
         <nav className="sidebar-nav">
-          <ul>
-            <li
-              className={activeView === 'home' ? 'active' : ''}
-              onClick={() => handleSidebarClick('home')}
-            >
-              Home
-            </li>
-            <li
-              className={activeView === 'upload' ? 'active' : ''}
-              onClick={() => handleSidebarClick('upload')}
-            >
-              Upload Order
-            </li>
-            <li
-              className={activeView === 'order' ? 'active' : ''}
-              onClick={() => handleSidebarClick('order')}
-            >
-              Order
-            </li>
-            <li
-              className={activeView === 'inventory' ? 'active' : ''}
-              onClick={() => handleSidebarClick('inventory')}
-            >
-              Inventory
-            </li>
-            <li
-              className={activeView === 'manage' ? 'active' : ''}
-            >
-              Manage User
-            </li>
-            <li>
-              Audit
-            </li>
-            <li>
-              Registree
-            </li>
-            <li
-              className={activeView === 'setting' ? 'active' : ''}
-            >
-              Setting
-            </li>
-            <li onClick={() => setShowLogout(true)}>Log Out</li>
-          </ul>
-        </nav>
+  <ul>
+    <li
+      className={activeView === 'home' ? 'active' : ''}
+      onClick={() => handleSidebarClick('home')}
+    >
+      Home
+    </li>
+    <li
+      className={activeView === 'upload' ? 'active' : ''}
+      onClick={() => handleSidebarClick('upload')}
+    >
+      Upload Order
+    </li>
+    <li
+      className={activeView === 'order' ? 'active' : ''}
+      onClick={() => handleSidebarClick('order')}
+    >
+      Order
+    </li>
+    <li
+      className={activeView === 'inventory' ? 'active' : ''}
+      onClick={() => handleSidebarClick('inventory')}
+    >
+      Inventory
+    </li>
+    <li
+      className={activeView === 'manage' ? 'active' : ''}
+      onClick={() => handleSidebarClick('manage')}
+    >
+      Manage User
+    </li>
+    <li
+      className={activeView === 'audit' ? 'active' : ''}
+      onClick={() => handleSidebarClick('audit')}
+    >
+      Report
+    </li>
+    <li
+      className={activeView === 'registree' ? 'active' : ''}
+      onClick={() => handleSidebarClick('registree')}
+    >
+      Registree
+    </li>
+    <li onClick={() => setShowLogout(true)}>Log Out</li>
+  </ul>
+</nav>
+
       </aside>
 
       {/* Main Content */}
@@ -196,6 +233,7 @@ function SellerDashboard() {
           <UploadOrderPage onCancel={() => setActiveView('home')} />
         )}
         {activeView === 'order' && <SellerOrders />}
+        {activeView === 'registree' && <RegistreeTab />}
       </div>
 
       {showLogout && (

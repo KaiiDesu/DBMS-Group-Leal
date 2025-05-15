@@ -1,0 +1,98 @@
+.registree-tab {
+  padding: 30px;
+  background-color: #f5f6f8;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.registree-tab h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+}
+
+.registree-tab table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.registree-tab th,
+.registree-tab td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.registree-tab th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  color: #333;
+}
+
+.registree-tab tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.registree-tab a {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.registree-tab button {
+  padding: 6px 12px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.registree-tab button:first-of-type {
+  background-color: #28a745;
+  color: white;
+}
+
+.registree-tab button:first-of-type:hover {
+  background-color: #218838;
+}
+
+.registree-tab button:last-of-type {
+  background-color: #dc3545;
+  color: white;
+}
+
+.registree-tab button:last-of-type:hover {
+  background-color: #c82333;
+}
+
+.id-thumbnail {
+  width: 50px;
+  height: 40px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.image-popup-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.image-popup-content img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(255,255,255,0.6);
+}

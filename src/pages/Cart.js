@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import PaymentMethodPopup from '../pages/PaymentMethodPopup';
+import Swal from 'sweetalert2';
+
 
 function Cart() {
   const location = useLocation();
@@ -44,19 +46,45 @@ function Cart() {
     setSelectedItemIds(allSelected ? [] : allIds);
   };
 
-  const handleDeleteItem = id => {
-    const next = cartItems.filter(i => i.id !== id);
-    setCartItems(next);
-    updateLocalStorage(next);
-    setSelectedItemIds(prev => prev.filter(x => x !== id));
+const handleDeleteItem = (id) => {
+  Swal.fire({
+    title: 'Are you sure you want to delete this product?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const next = cartItems.filter((i) => i.id !== id);
+      setCartItems(next);
+      updateLocalStorage(next);
+      setSelectedItemIds((prev) => prev.filter((x) => x !== id));
+      Swal.fire('Deleted!', 'The product has been removed.', 'success');
+    }
+  });
+};
+
+
+    const handleDeleteSelected = () => {
+    Swal.fire({
+      title: 'Are you sure you want to delete all selected products?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete all!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const next = cartItems.filter(i => !selectedItemIds.includes(i.id));
+        setCartItems(next);
+        updateLocalStorage(next);
+        setSelectedItemIds([]);
+        Swal.fire('Deleted!', 'Selected products have been removed.', 'success');
+      }
+    });
   };
 
-  const handleDeleteSelected = () => {
-    const next = cartItems.filter(i => !selectedItemIds.includes(i.id));
-    setCartItems(next);
-    updateLocalStorage(next);
-    setSelectedItemIds([]);
-  };
 
   const handleQuantityChange = (id, qty) => {
     const next = cartItems.map(i =>
@@ -225,14 +253,17 @@ function Cart() {
           <p className="sub-details">Shipping: ₱{shipping.toFixed(2)}</p>
           <p className="sub-details">₱{discount.toFixed(2)} OFF</p>
         </div>
-        <button
+        <motion.button
           className={`checkout-btn ${selectedItemIds.length === 0 ? 'disabled' : ''}`}
           disabled={selectedItemIds.length === 0}
           onClick={() => selectedItemIds.length > 0 && setShowOrderSummary(true)}
+          whileTap={{ scale: 0.95 }}
         >
           Check Out ({totalSelectedQty})
-        </button>
+        </motion.button>
       </div>
+
+      {/* Order Summary Popup and PaymentMethod remain unchanged */}
 
       <AnimatePresence>
         {showOrderSummary && (
@@ -244,15 +275,16 @@ function Cart() {
           >
             <motion.div
               className="order-summary-popup"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
-              <h2>Order summary</h2>
+              
               <button className="edit-btn" onClick={() => setShowOrderSummary(false)}>
                 Exit
               </button>
+              <h2>Order summary</h2>
               <div className="form">
                 <label>Address:</label>
                 <input
@@ -286,14 +318,25 @@ function Cart() {
                   </div>
                 ))}
               </div>
+
+              <div className="refund-policy-section">
+  <hr />
+  <h4>Refund Policy</h4>
+  <p className="refund-description">Review <a href="#/refund">refund policy</a></p>
+  <hr />
+  <p className="legal-disclaimer">
+    By placing an order, you agree to the <span className="bold-text">Vape Bureau Terms and Use of Sale</span> and acknowledge that you have read the <span className="bold-text">Privacy Policy</span>.
+  </p>
+</div>
+
               <div className="summary-details">
                 <p>Subtotal: ₱{subtotal.toFixed(2)}</p>
                 <p>Shipping: ₱{shipping.toFixed(2)}</p>
                 <p>Discount: ₱{discount.toFixed(2)}</p>
               </div>
-              <button className="place-order-btn" onClick={handlePlaceOrder}>
+              <motion.button className="place-order-btn" onClick={handlePlaceOrder} whileTap={{ scale: 0.97 }}>
                 Place order
-              </button>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}

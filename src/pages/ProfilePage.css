@@ -183,3 +183,73 @@
   max-width: 250px;
   margin-right: 600px;
 }
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 20px;
+  }
+
+  .profile-card {
+    padding: 20px;
+  }
+
+  .profile-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .profile-right {
+    width: 100%;
+    align-items: center;
+  }
+
+  .profile-divider {
+    display: none;
+  }
+
+  .upload-area {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-left label {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  .profile-left input[type="text"],
+  .profile-left input[type="email"],
+  .profile-left input[type="tel"],
+  .date-input {
+    font-size: 13px;
+  }
+
+  .gender-options input[type="gender"] {
+    flex-direction: center;
+    gap: 10px
+
+  }
+  .gender-options {
+    flex-direction: center;
+    gap: 8px;
+  }
+
+  .save-btn {
+    width: 100%;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-logo {
+    height: 30px;
+  }
+
+  .left-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}

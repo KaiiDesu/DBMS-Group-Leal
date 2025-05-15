@@ -6,6 +6,8 @@ import LogoutPopup from '../components/LogoutPopup';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import { motion, AnimatePresence } from 'framer-motion';
+import Logo from '../pages/logovape.png'; 
+import Cart from '../components/images/cart-icon.png';
 
 function generate12DigitCode() {
   return Math.floor(1e11 + Math.random() * 9e11).toString();
@@ -102,7 +104,7 @@ export default function OrdersPage() {
 
       <header className="navbar">
         <div className="navbar-left">
-          <img src="/logovape.png" alt="Logo" className="nav-logo" />
+          <img src={Logo} alt="Logo" className="nav-logo" />
           <span className="brand-name">Vape Bureau PH</span>
         </div>
         <div className="navbar-right">
@@ -122,7 +124,7 @@ export default function OrdersPage() {
           </div>
           <div className="cart-preview-wrapper">
             <button className="icon-btn" onClick={toggleCartPreview}>
-              <img src="/cart-icon.png" alt="Cart" />
+              <img src={Cart} alt="Cart" />
             </button>
             {cartPreviewOpen && (
               <div className="cart-preview-dropdown">

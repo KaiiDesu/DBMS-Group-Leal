@@ -51,66 +51,56 @@ const OrderDetailsPage = () => {
 
   return (
     <div className="order-details-container">
-      <h2>Order Details</h2>
-      <div className="status-tracker">
-        <p>Your Order has been <strong>{status}</strong></p>
-        <div className="status-steps">
-          <label>
-            <input
-              type="radio"
-              checked={status === 'pending'}
-              onChange={() => setStatus('pending')}
-            />{' '}
-            Preparing
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={status === 'shipped'}
-              onChange={() => setStatus('shipped')}
-            />{' '}
-            Order Shipped
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={status === 'delivered'}
-              onChange={() => setStatus('delivered')}
-            />{' '}
-            Order Delivered
-          </label>
-        </div>
-        <button onClick={handleSave} className="save-status-btn">SAVE</button>
-      </div>
+  <h2>Order Summary</h2>
 
-      <div className="details-box">
-        <h3>Delivery Address :</h3>
-        <p>{order.address}</p>
-        <p>Contact Number: {contact}</p>
-        <p>Order Date: {new Date(order.created_at).toLocaleString()}</p>
-      </div>
+  <div className="details-section">
+    <div><strong>Order ID:</strong> {order.id}</div>
+    <div><strong>Payment Method:</strong> {order.payment_method || 'N/A'}</div>
+    <div><strong>Status:</strong> {status}</div>
+    <div><strong>Customer Name:</strong> {fullName}</div>
+    <div><strong>Phone:</strong> {contact}</div>
+    <div><strong>Delivery Address:</strong> {order.address}</div>
+    <div><strong>Order Date:</strong> {new Date(order.created_at).toLocaleString()}</div>
+  </div>
 
-      <div className="items-box">
-        <h3>Order Items:</h3>
-        <ul>
-          {order.items.map((item, i) => (
-            <li key={i}>
-              <img src={item.image_url} alt={item.name} className="item-img" />
-              <div>
-                <p>{item.name}</p>
-                <p>₱{item.price} × {item.quantity}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="summary-box">
-        <p>Delivery Fee: ₱0.00</p>
-        <p>Discount: ₱0.00</p>
-        <h4>Total: ₱{order.total.toFixed(2)}</h4>
-      </div>
+  <div className="status-tracker">
+    <h3>Status</h3>
+    <div className="status-steps">
+      <label>
+        <input type="radio" checked={status === 'pending'} onChange={() => setStatus('pending')} /> Preparing
+      </label>
+      <label>
+        <input type="radio" checked={status === 'shipped'} onChange={() => setStatus('shipped')} /> Shipped
+      </label>
+      <label>
+        <input type="radio" checked={status === 'delivered'} onChange={() => setStatus('delivered')} /> Delivered
+      </label>
     </div>
+    <button onClick={handleSave} className="save-status-btn">Save Status</button>
+  </div>
+
+  <div className="items-box">
+    <h3>Ordered Items</h3>
+    <ul>
+      {order.items.map((item, i) => (
+        <li key={i}>
+          <img src={item.image_url} alt={item.name} className="item-img" />
+          <div>
+            <p>{item.name}</p>
+            <p>₱{item.price} × {item.quantity}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div className="summary-box">
+    <p>Delivery Fee: ₱0.00</p>
+    <p>Discount: ₱0.00</p>
+    <h4>Total: ₱{order.total.toFixed(2)}</h4>
+  </div>
+</div>
+
   );
 };
 
