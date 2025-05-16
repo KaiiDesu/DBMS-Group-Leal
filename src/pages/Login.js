@@ -44,7 +44,7 @@ const showDisclaimer = () => {
       This site contains products only suitable for those aged 21 and over. 
       Please exit if you are underage.<br><br>
       By clicking accept, you confirm that you are of legal smoking age 
-      and agree to our <a href="/terms" target="_blank">Terms and Conditions</a>.
+      and agree to our <a href="#/policy" target="_blank">Terms and Conditions</a>.
     `,
     imageUrl: logos,
     imageWidth: 220,
@@ -481,7 +481,7 @@ if (formType === 'signup') {
   </p>
   <p className="terms-link">
     
-      Click here to see the <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms and Condition
+      Click here to see the <a href="#/policy" target="_blank" rel="noopener noreferrer">Terms and Condition
     </a>
   </p>
 

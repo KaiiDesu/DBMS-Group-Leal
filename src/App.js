@@ -13,11 +13,15 @@ import OrderDetailsPage from './pages/OrderDetailsPage';
 import Confirm from './pages/Confirm';
 import BelowAge from './pages/BelowAge';
 import PreviewShopfront from './pages/PreviewShopfront';
+import Policy from './pages/PolicyPage';
+import RefundPage from './pages/RefundPage';
+import RefundPolicy from './pages/Policy/RefundPolicy';
+import PrivacyPolicy from './pages/Policy/PrivacyPolicy'
 
 import { useEffect } from 'react';                      // 🔁 for useEffect
 import { useNavigate } from 'react-router-dom';         // 🔁 for navigate
 import { supabase } from './supabaseClient'; 
-import RefundPage from './pages/RefundPage';
+
 
 function App() {
   const navigate = useNavigate();
@@ -74,6 +78,9 @@ useEffect(() => {
       <Route path="/confirm" element={<Confirm />} />
       <Route path="/underage" element={<BelowAge />} />
       <Route path="/refund" element={<RefundPage/>} />
+      <Route path="/policy" element={<Policy/>}/>
+      <Route path="/policy/refund" element={<RefundPolicy />} />
+      <Route path="/policy/privacy" element={<PrivacyPolicy />} />
     </Routes>
   );
 }

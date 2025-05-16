@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom'
 import './RefundPage.css';
 
+
 function RefundPage() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -36,6 +39,7 @@ function RefundPage() {
   return (
     <div className="refund-wrapper">
     <div className="refund-container">
+      <button className="back-btn" onClick={() => navigate(-1)}>&lt; Back</button>
       <h2 className="refund-title">Refund Request Form</h2>
       <form className="refund-form" onSubmit={handleSubmit}>
         <div className="input-group double">
@@ -145,7 +149,7 @@ function RefundPage() {
     onChange={handleChange}
   />
   <span>
-    By proceeding with your request, you confirm that you have read and agreed to our <a href="/refund-policy">Refund Policy</a> and <a href="/privacy-policy">Privacy Policy</a>.
+    By proceeding with your request, you confirm that you have read and agreed to our <a href="#/policy/refund">Refund Policy</a> and <a href="#/policy/privacy">Privacy Policy</a>.
   </span>
 </label>
 

@@ -38,26 +38,43 @@ function Shopfront({ previewMode = false }) {
 
   useEffect(() => {
   if (!previewMode) {
-    Swal.fire({
-      title: '21+ DISCLAIMER',
-      html: `
-        <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
-        This site contains products only suitable for ages 21 and above. Please exit if you do not meet the reqruired age. 
-        <br><br>
-        By clicking accept, you confirm that you are of legal smoking age 
-        and agree to our <a href="/terms" target="_blank">terms and conditions</a>.
-      `,
-      icon: 'warning',
-      showCancelButton: false,
-      confirmButtonText: 'I Accept',
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      customClass: {
-        popup: 'swal2-disclaimer',
-      }
-    }).then(() => {
-      setShowDisclaimer(false);
-    });
+Swal.fire({
+  title: '21+ DISCLAIMER',
+  html: `
+    <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
+    This site contains products only suitable for ages 21 and above. Please exit if you do not meet the required age. 
+    <br><br>
+    By clicking accept, you confirm that you are of legal smoking age 
+    and agree to our <a id="terms-link" style="color:#1a0dab; text-decoration:underline; cursor:pointer;">Terms and Conditions</a>.
+  `,
+  icon: 'warning',
+  showCancelButton: false,
+  confirmButtonText: 'I Accept',
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+  customClass: {
+    popup: 'swal2-disclaimer',
+  },
+  didOpen: () => {
+    const termsLink = document.getElementById('terms-link');
+    if (termsLink) {
+      termsLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        Swal.close();                // Close the disclaimer manually
+        setShowDisclaimer(false);   // Hide it from React state
+        navigate('/policy');        // Navigate to Terms page
+      });
+    }
+  }
+}).then(() => {
+  setShowDisclaimer(false);
+});
+    setTimeout(() => {
+  const termsLink = document.getElementById('terms-link');
+  if (termsLink) {
+    termsLink.onclick = () => navigate('/policy');
+  }
+}, 0);
   }
 }, []);
 
@@ -358,10 +375,11 @@ useEffect(() => {
     </p>
   </div>
   <div className="footer-right">
-    <p>📍 826 Matimyas St. Sampaloc Manila</p>
-    <p>📞 09453202818</p>
-    <p>📧 <a href="mailto:VapeBureauPh@gmail.com">VapeBureauPh@gmail.com</a></p>
-    <p>🔵 Vape Bureau Ph</p>
+    <p>📍 <a className="a-address" href="https://www.google.com/maps?q=826+Matimyas+St.+Sampaloc+Manila" target="_blank" rel="noopener noreferrer">
+            826 Matimyas St. Sampaloc Manila
+            </a></p>
+    <p>📞 <a className="a-tel" href="tel:09453202818">09453202818</a></p>
+    <p>📧 <a className="a-email" href="mailto:VapeBureauPh@gmail.com">VapeBureauPh@gmail.com</a></p>
   </div>
 </footer>
 

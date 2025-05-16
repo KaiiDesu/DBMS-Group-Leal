@@ -946,6 +946,30 @@
   padding: 20px;
 }
 
+.footer-right .a-email{
+  text-decoration: none;
+}
+
+.footer-right .a-tel {
+  text-decoration: none;
+}
+
+.footer-right .a-address {
+  text-decoration: none;
+}
+
+.footer-right .a-address:hover {
+  color: #555
+}
+
+.footer-right .a-tel:hover {
+  color: #555
+}
+
+.footer-right .a-email:hover {
+  color: #555
+}
+
 /* ===============================
    📱 MOBILE RESPONSIVENESS
    =============================== */

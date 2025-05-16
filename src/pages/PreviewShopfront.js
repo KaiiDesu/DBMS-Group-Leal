@@ -34,26 +34,36 @@ const [emailInput, setEmailInput] = useState('');
 
 useEffect(() => {
   const showDisclaimer = () => {
-    Swal.fire({
-      title: 'DISCLAIMER',
-      html: `
-        <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong>
-        <br><br>
-        This site contains products only suitable for ages 21 and above. Please exit if you do not meet the reqruired age. 
-        <br><br>
-        By clicking accept, you confirm that you are of legal smoking age 
-        and agree to our <a href="/terms" target="_blank">terms and conditions</a>.
-      `,
-      imageUrl: logos,
-      imageWidth: 220,
-      imageHeight: 200,
-      imageAlt: '21+ Icon',
-      showCancelButton: false,
-      confirmButtonText: 'I Accept',
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      customClass: { popup: 'swal2-disclaimer' }
-    });
+Swal.fire({
+  title: 'DISCLAIMER',
+  html: `
+    <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong>
+    <br><br>
+    This site contains products only suitable for ages 21 and above. Please exit if you do not meet the required age. 
+    <br><br>
+    By clicking accept, you confirm that you are of legal smoking age 
+    and agree to our <a id="terms-link" style="color:#1a0dab; text-decoration:underline; cursor:pointer;">Terms and Conditions</a>.
+  `,
+  imageUrl: logos,
+  imageWidth: 220,
+  imageHeight: 200,
+  imageAlt: '21+ Icon',
+  showCancelButton: false,
+  confirmButtonText: 'I Accept',
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+  customClass: { popup: 'swal2-disclaimer' },
+  didOpen: () => {
+    const link = document.getElementById('terms-link');
+    if (link) {
+      link.onclick = () => {
+        Swal.close();
+        setShowDisclaimer(false);
+        navigate('/policy');
+      };
+    }
+  }
+});
   };
 
   showDisclaimer(); // show on load
@@ -175,7 +185,7 @@ useEffect(() => {
       <button className="popup-continue-btn" onClick={() => navigate(`/login?email=${encodeURIComponent(emailInput)}`)}>
         Continue
       </button>
-      <p className="login-popup-footer">By continuing you agree to our <a href="#">Privacy Policy</a> and <a href="#">Terms & Conditions</a>.</p>
+      <p className="login-popup-footer">By continuing you agree to our <a href="#/policy/privacy">Privacy Policy</a> and <a href="#/policy">Terms & Conditions</a>.</p>
     </div>
   </div>
 )}
