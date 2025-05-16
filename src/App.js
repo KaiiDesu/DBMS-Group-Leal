@@ -17,10 +17,14 @@ import Policy from './pages/PolicyPage';
 import RefundPage from './pages/RefundPage';
 import RefundPolicy from './pages/Policy/RefundPolicy';
 import PrivacyPolicy from './pages/Policy/PrivacyPolicy'
+import LegalitiesPolicy from './pages/Policy/LegalitiesPolicy';
+import IDVerPolicy from './pages/Policy/IDVerPolicy';
 
 import { useEffect } from 'react';                      // 🔁 for useEffect
 import { useNavigate } from 'react-router-dom';         // 🔁 for navigate
 import { supabase } from './supabaseClient'; 
+
+
 
 
 function App() {
@@ -81,6 +85,8 @@ useEffect(() => {
       <Route path="/policy" element={<Policy/>}/>
       <Route path="/policy/refund" element={<RefundPolicy />} />
       <Route path="/policy/privacy" element={<PrivacyPolicy />} />
+      <Route path="/policy/legalities" element={<LegalitiesPolicy />} />
+      <Route path="/policy/idver" element={<IDVerPolicy />} />
     </Routes>
   );
 }

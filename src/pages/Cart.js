@@ -322,10 +322,10 @@ const handleDeleteItem = (id) => {
               <div className="refund-policy-section">
   <hr />
   <h4>Refund Policy</h4>
-  <p className="refund-description">Review <a href="#/policy/refund">refund policy</a></p>
+  <p className="refund-description">Review <a href="#/policy/refund">Refund Policy</a></p>
   <hr />
   <p className="legal-disclaimer">
-    By placing an order, you agree to the <span className="bold-text">Vape Bureau Terms and Use of Sale</span> and acknowledge that you have read the <span className="bold-text"><a href="#/policy">Privacy Policy</a></span>.
+    By placing an order, you agree to the <span className="bold-text">Vape Bureau Terms and Use of Sale</span> and acknowledge that you have read the <span className="bold-text"><a href="#/policy/privacy">Privacy Policy</a></span>.
   </p>
 </div>
 

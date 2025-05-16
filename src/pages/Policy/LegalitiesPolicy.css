@@ -1,11 +1,14 @@
 .policy-container {
   max-width: 800px;
+  height: 100%;
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+
+  text-align: justify;
 }
 
 .header {
@@ -22,7 +25,7 @@
   
 }
 
-.policy-container button {
+.policy-container section {
   margin-bottom: 1.8rem;
   max-width: 800px;
   margin: 0 auto;
@@ -31,13 +34,13 @@
   background-color: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
   transition-duration: 0.4s;
 }
 
-.policy-container button:hover {
-  background-color: #e7e7e7;
+.policy-cointer section:hover {
+    color: #e7e7e7;
 }
+
 .policy-container h2 {
   color: #222;
   font-size: 1.2rem;
@@ -47,7 +50,15 @@
 .policy-container p {
   color: #555;
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: 16px;
+  
+}
+
+.policy-container .ul {
+    color: #555;
+  line-height: 1.6;
+  font-size: 16px;
+  
 }
 
 .back-btn {
@@ -64,43 +75,12 @@
   color: #0056b3;
 }
 
-@media (max-width: 768px) {
-  .policy-container {
-    padding: 1rem;
-    border-radius: 0;
-    box-shadow: none;
-    margin: 0;
-  }
+.policy-contact a {
+  color: #555;           /* Change this to any color you like */
+  text-decoration: underline; /* Keeps it underlined */
+  font-weight: 500;         /* Optional: makes it slightly bolder */
+}
 
-  .header {
-    height: auto;
-    padding: 10px;
-  }
-
-  .header h1 {
-    font-size: 1.2rem;
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
-
-  .policy-container button {
-    padding: 1rem;
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-  }
-
-  .policy-container h2 {
-    font-size: 1.1rem;
-  }
-
-  .policy-container p {
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-
-  .back-btn {
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    width: 100px;
-  }
+.policy-contact a:hover {
+  color: #000000;           /* Color when hovered */
 }
