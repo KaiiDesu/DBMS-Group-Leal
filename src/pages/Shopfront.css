@@ -68,10 +68,12 @@
 
 
 
-.product-card {
-  width: 100%;
-  max-width: 250px;
+ .product-card {
+  width: 250px;
   min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: white;
   border-radius: 20px;
   box-shadow: 0 4px 120px rgba(0, 0, 0, 0.2);
@@ -80,10 +82,6 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   color: black;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 

@@ -19,7 +19,6 @@ import RefundPolicy from './pages/Policy/RefundPolicy';
 import PrivacyPolicy from './pages/Policy/PrivacyPolicy'
 import LegalitiesPolicy from './pages/Policy/LegalitiesPolicy';
 import IDVerPolicy from './pages/Policy/IDVerPolicy';
-import SellerOrderDetail from './pages/SellerOrderDetail';
 
 import { useEffect } from 'react';                      // 🔁 for useEffect
 import { useNavigate } from 'react-router-dom';         // 🔁 for navigate
@@ -35,36 +34,45 @@ function App() {
 useEffect(() => {
   const pathname = window.location.hash;
 
-  const checkSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
+  const handleRedirect = async (session) => {
     const userId = session.user.id;
 
-    // only redirect from home page or preview
-    if (pathname === '' || pathname === '#/' || pathname === '#/login' || pathname === '#/seller-login') {
-      const { data: customerProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', userId)
-        .single();
+    const { data: customerProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', userId)
+      .single();
 
-      const { data: sellerProfile } = await supabase
-        .from('sellers')
-        .select('id')
-        .eq('id', userId)
-        .single();
+    const { data: sellerProfile } = await supabase
+      .from('sellers')
+      .select('id')
+      .eq('id', userId)
+      .single();
 
-      if (sellerProfile) {
-        navigate('/seller-dashboard');
-      } else if (customerProfile) {
-        navigate('/shopfront');
-      }
+    if (sellerProfile) {
+      navigate('/seller-dashboard');
+    } else if (customerProfile) {
+      navigate('/shopfront');
     }
   };
 
-  checkSession();
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session && (pathname === '' || pathname === '#/' || pathname === '#/login' || pathname === '#/seller-login')) {
+      handleRedirect(session);
+    }
+  });
+
+  const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      handleRedirect(session);
+    }
+  });
+
+  return () => {
+    listener.subscription.unsubscribe();
+  };
 }, []);
+
 
 
   return (
@@ -83,7 +91,6 @@ useEffect(() => {
       <Route path="/seller-order/:id" element={<OrderDetailsPage />} />
       <Route path="/confirm" element={<Confirm />} />
       <Route path="/underage" element={<BelowAge />} />
-      <Route path="/seller-order-detail/:id" element={<SellerOrderDetail />} />
       <Route path="/refund" element={<RefundPage/>} />
       <Route path="/policy" element={<Policy/>}/>
       <Route path="/policy/refund" element={<RefundPolicy />} />

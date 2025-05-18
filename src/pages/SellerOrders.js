@@ -11,10 +11,52 @@ const SellerOrders = () => {
   const [selectedItems, setSelectedItems] = useState(null);
   const [acceptedOrders, setAcceptedOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [currentStatus, setCurrentStatus] = useState('');
+  const statusOrder = ['to ship', 'shipped', 'delivered', 'cancelled', 'refunded'];
+  const [allOrders, setAllOrders] = useState([]);
+
+  
 
   useEffect(() => {
     fetchOrders();
   }, [viewStatus]);
+
+useEffect(() => {
+  const fetchAllOrders = async () => {
+    const { data } = await supabase.from('orders').select('status');
+    setAllOrders(data || []);
+  };
+
+  const interval = setInterval(() => {
+    fetchOrders();
+    fetchAllOrders();
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, []);
+
+  useEffect(() => {
+  const fetchAllOrders = async () => {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return;
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('status');
+
+    if (!error) {
+      setAllOrders(data || []);
+    }
+  };
+
+  fetchAllOrders();
+}, []);
+
+useEffect(() => {
+  if (selectedOrder) {
+    setCurrentStatus(selectedOrder.status);
+  }
+}, [selectedOrder]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -37,6 +79,12 @@ const SellerOrders = () => {
     setLoading(false);
   };
 
+  const statusCounts = allOrders.reduce((acc, order) => {
+  const status = order.status;
+  acc[status] = (acc[status] || 0) + 1;
+  return acc;
+}, {});
+
   const handleAccept = async (orderId) => {
     const { error } = await supabase
       .from('orders')
@@ -47,6 +95,22 @@ const SellerOrders = () => {
       console.error('Error updating order:', error);
     } else {
       fetchOrders();
+    }
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    if (!selectedOrder || newStatus === currentStatus) return;
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', selectedOrder.id);
+
+    if (!error) {
+      setCurrentStatus(newStatus);
+    } else {
+      alert('Failed to update status.');
+      console.error(error);
     }
   };
 
@@ -65,15 +129,22 @@ const SellerOrders = () => {
 
   if (selectedOrder) {
     const items = JSON.parse(selectedOrder.items || '[]');
+
+
     return (
       <div className="order-detail-container">
         <button className="back-btn" onClick={() => setSelectedOrder(null)}>← Back to Orders</button>
 
-        <div className="status-tracker">
-          <div className="step done">To Ship</div>
-          <div className="step done">Shipped</div>
-          <div className="step done">To Receive</div>
-        </div>
+<div className="status-tracker">
+  {statusOrder.map((step) => (
+    <div
+      key={step}
+      className={`step ${statusOrder.indexOf(step) <= statusOrder.indexOf(currentStatus) ? 'done' : ''}`}
+    >
+      {step.charAt(0).toUpperCase() + step.slice(1)}
+    </div>
+  ))}
+</div>
 
         <div className="info-box">
           <h3>🚚 Shipping Information</h3>
@@ -85,6 +156,18 @@ const SellerOrders = () => {
           <h3>🏠 Delivery Address</h3>
           <p><strong>{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</strong></p>
           <p>{selectedOrder.address}</p>
+        </div>
+
+        <div className="status-button">
+          {['to ship', 'shipped', 'delivered', 'cancelled', 'refunded'].map((status) => (
+            <button
+              key={status}
+              className={currentStatus === status ? 'active-status' : ''}
+              onClick={() => handleStatusChange(status)}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </button>
+          ))}
         </div>
 
         {items.map((item, index) => (
@@ -114,14 +197,23 @@ const SellerOrders = () => {
     <div className="seller-orders-container">
       <h2>Order</h2>
       <div className="orders-topbar">
-        <div className="status-toggle">
-          <button className={viewStatus === 'pending' ? 'active' : ''} onClick={() => setViewStatus('pending')}>
-            Pending
-          </button>
-          <button className={viewStatus === 'accepted' ? 'active' : ''} onClick={() => setViewStatus('accepted')}>
-            Accepted
-          </button>
-        </div>
+<div className="status-toggle">
+  {['pending', 'accepted', 'to ship', 'shipped', 'delivered', 'cancelled', 'refunded'].map((status) => (
+    <div key={status} className="status-tab-wrapper">
+      <button
+        className={viewStatus === status ? 'active' : ''}
+        onClick={() => setViewStatus(status)}
+      >
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </button>
+      {statusCounts[status] > 0 && (
+        <span className="notif-badge">{statusCounts[status]}</span>
+      )}
+    </div>
+  ))}
+</div>
+
+
         <input
           className="search-bar"
           placeholder="Search by name, address, or code"
@@ -154,31 +246,32 @@ const SellerOrders = () => {
                 <td>₱{order.total}</td>
                 <td style={{ perspective: 600 }}>
                   <AnimatePresence mode="wait" initial={false}>
-                    {order.status === 'accepted' || acceptedOrders.includes(order.id) ? (
-                      <motion.button
-                        key="view"
-                        className="view-btn"
-                        onClick={() => setSelectedOrder(order)}
-                        initial={{ rotateY: 90, opacity: 0 }}
-                        animate={{ rotateY: 0, opacity: 1 }}
-                        exit={{ rotateY: -90, opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        View Order
-                      </motion.button>
-                    ) : (
-                      <motion.button
-                        key="accept"
-                        className="accept-btn"
-                        onClick={() => handleAccept(order.id)}
-                        initial={{ rotateY: -90, opacity: 0 }}
-                        animate={{ rotateY: 0, opacity: 1 }}
-                        exit={{ rotateY: 90, opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        Accept
-                      </motion.button>
-                    )}
+                    {order.status === 'pending' ? (
+  <motion.button
+    key="accept"
+    className="accept-btn"
+    onClick={() => handleAccept(order.id)}
+    initial={{ rotateY: -90, opacity: 0 }}
+    animate={{ rotateY: 0, opacity: 1 }}
+    exit={{ rotateY: 90, opacity: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    Accept
+  </motion.button>
+) : (
+  <motion.button
+    key="view"
+    className="view-btn"
+    onClick={() => setSelectedOrder(order)}
+    initial={{ rotateY: 90, opacity: 0 }}
+    animate={{ rotateY: 0, opacity: 1 }}
+    exit={{ rotateY: -90, opacity: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    View Order
+  </motion.button>
+)}
+
                   </AnimatePresence>
                 </td>
               </tr>
