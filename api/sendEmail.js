@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'noreply@vapebureauph.com',
+        from: 'vapebureau@resend.dev',
         to,
         subject,
         html,
