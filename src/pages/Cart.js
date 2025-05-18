@@ -142,7 +142,12 @@ const handleDeleteItem = (id) => {
     }
 
     const orderId = orderInsert[0].id;
-    alert('Order Placed Successfully! Order ID: ' + orderId);
+    await Swal.fire({
+    title: 'Order Placed!',
+    text: `Your order ${orderPayload.code} has been successfully placed.`,
+    icon: 'success',
+    confirmButtonText: 'Okay',
+    });
 
     const orderItemsPayload = selectedItems.map(item => ({
       order_id: orderId,

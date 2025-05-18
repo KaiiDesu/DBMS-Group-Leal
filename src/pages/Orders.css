@@ -83,13 +83,7 @@
   .dropdown-content.show {
     display: block;
   }
-  .dropdown-content button {
-    all: unset;
-    display: block;
-    width: 100%;
-    padding: 10px 16px;
-    cursor: pointer;
-  }
+
   .dropdown-content button:hover {
     background-color: #f3f4f6;
   }
