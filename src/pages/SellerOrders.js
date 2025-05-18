@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import './SellerOrders.css';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SellerOrders = () => {
@@ -11,8 +10,7 @@ const SellerOrders = () => {
   const [viewStatus, setViewStatus] = useState('pending');
   const [selectedItems, setSelectedItems] = useState(null);
   const [acceptedOrders, setAcceptedOrders] = useState([]);
-  const navigate = useNavigate();
-  
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -28,7 +26,7 @@ const SellerOrders = () => {
     }
     const { data, error } = await supabase
       .from('orders')
-      .select('id, code, user_id, address, total, status, items, profiles: profiles (first_name, last_name)')
+      .select('id, code, user_id, address, total, status, items, profiles: profiles (first_name, last_name, email)')
       .eq('status', viewStatus);
 
     if (error) {
@@ -44,15 +42,13 @@ const SellerOrders = () => {
       .from('orders')
       .update({ status: 'accepted' })
       .eq('id', orderId);
-  
+
     if (error) {
       console.error('Error updating order:', error);
     } else {
-      // Refresh the list manually to reflect the change
       fetchOrders();
     }
   };
-  
 
   const filteredOrders = orders.filter((order) => {
     const fullName = `${order.profiles?.first_name ?? ''} ${order.profiles?.last_name ?? ''}`;
@@ -66,6 +62,53 @@ const SellerOrders = () => {
       address.toLowerCase().includes(query)
     );
   });
+
+  if (selectedOrder) {
+    const items = JSON.parse(selectedOrder.items || '[]');
+    return (
+      <div className="order-detail-container">
+        <button className="back-btn" onClick={() => setSelectedOrder(null)}>← Back to Orders</button>
+
+        <div className="status-tracker">
+          <div className="step done">To Ship</div>
+          <div className="step done">Shipped</div>
+          <div className="step done">To Receive</div>
+        </div>
+
+        <div className="info-box">
+          <h3>🚚 Shipping Information</h3>
+          <p><strong>VB Express</strong></p>
+          <p>Parcel Delivered</p>
+        </div>
+
+        <div className="info-box">
+          <h3>🏠 Delivery Address</h3>
+          <p><strong>{selectedOrder.profiles?.first_name} {selectedOrder.profiles?.last_name}</strong></p>
+          <p>{selectedOrder.address}</p>
+        </div>
+
+        {items.map((item, index) => (
+          <div className="product-card" key={index}>
+            <img src={item.image_url} alt={item.name} className="product-img" />
+            <div className="product-details">
+              <p className="product-name">{item.name}</p>
+              <p className="product-price">SRP: {item.price}</p>
+              <p className="product-qty">× {item.quantity}</p>
+            </div>
+            <div className="order-total">
+              <p>Order Total</p>
+              <p><strong>₱{selectedOrder.total}</strong></p>
+            </div>
+          </div>
+        ))}
+
+        <div className="order-id-box">
+          <p><strong>Order ID</strong></p>
+          <p># {selectedOrder.code}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="seller-orders-container">
@@ -104,7 +147,7 @@ const SellerOrders = () => {
           <tbody>
             {filteredOrders.map((order) => (
               <tr key={order.id}>
-                <td>🧾</td>
+                <td>📋</td>
                 <td>{order.code || order.id}</td>
                 <td>{order.profiles?.first_name} {order.profiles?.last_name}</td>
                 <td>{order.address}</td>
@@ -115,7 +158,7 @@ const SellerOrders = () => {
                       <motion.button
                         key="view"
                         className="view-btn"
-                        onClick={() => navigate(`/seller-order-detail/${order.id}`)}
+                        onClick={() => setSelectedOrder(order)}
                         initial={{ rotateY: 90, opacity: 0 }}
                         animate={{ rotateY: 0, opacity: 1 }}
                         exit={{ rotateY: -90, opacity: 0 }}
@@ -147,7 +190,7 @@ const SellerOrders = () => {
       {selectedItems && (
         <div className="items-modal-backdrop" onClick={() => setSelectedItems(null)}>
           <div className="items-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>🧾 Order Items</h3>
+            <h3>📋 Order Items</h3>
             <ul>
               {selectedItems.map((item, i) => (
                 <li key={i}>

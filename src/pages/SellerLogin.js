@@ -4,6 +4,7 @@ import logo from '../pages/logovape.png';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import Popup from '../components/Popup';
+import Swal from 'sweetalert2';
 
 function SellerLogin() {
   const [formType, setFormType] = useState('login');
@@ -134,7 +135,14 @@ function SellerLogin() {
       resetForm();
     } else {
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return setPopupMsg('Login failed: ' + error.message);
+      if (error) {
+      Swal.fire({
+      icon: 'error',
+      title: 'Login Failed',
+      text: error.message || 'An unknown error occurred while trying to log in.'
+       });
+      return;
+      }
   
       // ✅ Wait for session to load before accessing RLS-protected data
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -149,11 +157,18 @@ function SellerLogin() {
         .single();
   
       if (!seller || sellerError) {
-        return setPopupMsg('This is not a seller account.');
+          Swal.fire({
+          icon: 'error',
+          title: 'Invalid Email',
+          text: 'This email does not belong to a registered seller account.'
+  });
       }
   
-      setPopupMsg('Login successful!');
-      setRedirectAfterPopup(true);
+      Swal.fire({
+      icon: 'success',
+      title: 'Login successful!',
+      showConfirmButton: true
+}).then(() => navigate('/seller-dashboard'));
     }
   };
   

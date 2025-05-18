@@ -11,13 +11,23 @@
 
 .back-btn {
   background-color: transparent;
-  border: none;
-  color: #007bff;
+  border: 2px solid black;
+  color: black;
   font-size: 1rem;
   cursor: pointer;
-  margin-bottom: 1rem;
-  text-decoration: underline;
+  text-decoration: none;
+  display: block;
+  font-weight: bold;
+  padding: 10px 10px;
+  transition-duration: 0.4s  ;
+  border-radius: 10px;
 }
+
+.back-btn:hover {
+  background-color:  #000000;
+  color: white;
+}
+
 
 .refund-container h2 {
   background-color: #000054;

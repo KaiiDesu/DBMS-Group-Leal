@@ -4,15 +4,16 @@ import './SellerDashboard.css';
 import logo from '../pages/logovape.png';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import LogoutPopup from '../components/LogoutPopup';
 import InventoryPage from './InventoryPage';
 import UploadOrderPage from './UploadOrderPage';
 import SellerOrders from './SellerOrders';
 import RegistreeTab from './RegistreeTab';
+import SalesReport from './SalesReport';
+import SellerRefunds from './SellerRefunds';
+import Swal from 'sweetalert2';
 
 function SellerDashboard() {
   const [activeView, setActiveView] = useState('home');
-  const [showLogout, setShowLogout] = useState(false);
   const navigate = useNavigate();
   const [sellerName, setSellerName] = useState('');
 
@@ -43,9 +44,17 @@ const approveUser = async (userId) => {
 
   if (error) {
     console.error("Approval failed:", error);
-    alert("Failed to approve user.");
+    Swal.fire({
+      icon: 'error',
+      title: 'Approval Failed',
+      text: error.message || 'Failed to approve user.'
+    });
   } else {
-    alert("User approved successfully.");
+    Swal.fire({
+      icon: 'success',
+      title: 'User Approved',
+      text: 'User has been approved successfully!'
+    });
   }
 };
 
@@ -78,12 +87,24 @@ const approveUser = async (userId) => {
   }, []);
   
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Logout error:', error.message);
-    } else {
-      navigate('/seller-login');
+    const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: 'Are you sure you want to logout?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, logout'
+    });
+
+    if (result.isConfirmed) {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error.message);
+        Swal.fire({ icon: 'error', title: 'Logout Failed', text: error.message });
+      } else {
+        navigate('/seller-login');
+      }
     }
   };
 
@@ -122,12 +143,12 @@ const approveUser = async (userId) => {
     >
       Inventory
     </li>
-    <li
-      className={activeView === 'manage' ? 'active' : ''}
-      onClick={() => handleSidebarClick('manage')}
-    >
-      Manage User
-    </li>
+<li
+  className={activeView === 'refund' ? 'active' : ''}
+  onClick={() => handleSidebarClick('refund')}  // ✅ corrected
+>
+  Refunds
+</li>
     <li
       className={activeView === 'audit' ? 'active' : ''}
       onClick={() => handleSidebarClick('audit')}
@@ -140,7 +161,7 @@ const approveUser = async (userId) => {
     >
       Registree
     </li>
-    <li onClick={() => setShowLogout(true)}>Log Out</li>
+    <li onClick={handleLogout}>Log Out</li>
   </ul>
 </nav>
 
@@ -234,15 +255,12 @@ const approveUser = async (userId) => {
         )}
         {activeView === 'order' && <SellerOrders />}
         {activeView === 'registree' && <RegistreeTab />}
+        {activeView === 'audit' && <SalesReport />}
+        {activeView === 'refund' && <SellerRefunds />}
+        
+
       </div>
 
-      {showLogout && (
-        <LogoutPopup
-          message="Are you sure you want to logout?"
-          onConfirm={handleLogout}
-          onCancel={() => setShowLogout(false)}
-        />
-      )}
     </div>
   );
 }

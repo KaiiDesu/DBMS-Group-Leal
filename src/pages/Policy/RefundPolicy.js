@@ -1,5 +1,5 @@
 import React from 'react';
-import './RefundPolicy.css';
+import '../PolicyPage.css';
 import { useNavigate } from 'react-router-dom';
 
 const RefundPolicy = () => {
@@ -8,7 +8,7 @@ const RefundPolicy = () => {
   return (
     <div className="policy-container">
         <div className="header">
-      <button className="back-btn" onClick={() => navigate(-1)}>&lt; Back</button>
+      <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
       <h1>Refund Policy</h1>
     </div>
       <section>

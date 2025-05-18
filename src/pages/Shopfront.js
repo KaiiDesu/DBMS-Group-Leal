@@ -7,6 +7,7 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import Chatbot from '../components/Chatbot';
 import logo from '../components/logovape.png';
+import cartIcon from '../components/images/cart-icon.png';
 
 function Shopfront({ previewMode = false }) {
   const scrollTargetRef = useRef(null);
@@ -232,7 +233,7 @@ useEffect(() => {
             <span className="nav-item" onClick={() => navigate('/about')}>About Us</span>
           </div>
           <div style={{ position: 'relative' }}>
-            <button className="icon-btn" onClick={toggleCartPreview}><img src={`${process.env.PUBLIC_URL}/cart-icon.png`} /></button>
+            <button className="icon-btn" onClick={toggleCartPreview}><img src={cartIcon} /></button>
             {cartPreviewOpen && (
               <div className="cart-preview-dropdown">
                 {cartItems.length === 0 ? (

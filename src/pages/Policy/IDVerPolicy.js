@@ -1,5 +1,5 @@
 import React from 'react';
-import './IDVerPolicy.css';
+import '../PolicyPage.css';
 import { useNavigate } from 'react-router-dom';
 
 const IDVerPolicy = () => {
@@ -8,7 +8,7 @@ const IDVerPolicy = () => {
 return (
     <div className="policy-container">
         <div className="header">
-            <button className="back-btn" onClick={() => navigate(-1)}>&lt; Back</button>
+            <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
             <h1>ID Verification</h1>
         </div>
         <section>

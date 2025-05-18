@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import './RegistreeTab.css';
 
+
 function RegistreeTab() {
   const [registrees, setRegistrees] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -11,58 +12,103 @@ function RegistreeTab() {
   }, []);
 
   const fetchRegistrees = async () => {
-  const { data, error } = await supabase
-    .from('registree_requests')
-    .select('*')
-    .eq('status', 'pending'); // only show pending users
+    const { data, error } = await supabase
+      .from('registree_requests')
+      .select('*')
+      .eq('status', 'pending');
 
-  if (error) {
-    console.error('Fetch error:', error);
-  } else {
-    setRegistrees(data);
+    if (error) {
+      console.error('Fetch error:', error);
+    } else {
+      setRegistrees(data);
+    }
+  };
+
+const sendNotificationEmail = async (toEmail, name, decision) => {
+  try {
+    const response = await fetch('https://dbms-group-leal.vercel.app/api/sendEmail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: toEmail,
+        subject: 'Your Vape Bureau Registration Status',
+        html: `<p>Hi ${name},</p><p>Your registration has been <strong>${decision === 'accept' ? 'Accepted' : 'Declined'}<strong>.</p><p>Thank you for joining Vape Bureau PH.</p>`,
+      }),
+    });
+
+    const result = await response.json();
+    console.log('Email sent via Vercel:', result);
+  } catch (error) {
+    console.error('Email via Vercel error:', error);
   }
 };
 
 
-const handleDecision = async (id, decision) => {
-  const selected = registrees.find(r => r.id === id);
 
-  if (decision === 'accept') {
-    const {
-      id, first_name, last_name, email, phone_number,
-      birthdate, gender, id_type, id_number, id_front_url, id_back_url
-    } = selected;
 
-    const { error: insertError } = await supabase.from('profiles').insert([{
-      id, first_name, last_name, email, phone_number,
-      birthdate, gender, id_type, id_number, id_front_url, id_back_url
-    }]);
+  const handleDecision = async (id, decision) => {
+    const selected = registrees.find((r) => r.id === id);
 
-    if (insertError) {
-      return alert('Error approving user: ' + insertError.message);
+    if (decision === 'accept') {
+      const {
+        id,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        birthdate,
+        gender,
+        id_type,
+        id_number,
+        id_front_url,
+        id_back_url,
+      } = selected;
+
+      const { error: insertError } = await supabase.from('profiles').insert([
+        {
+          id,
+          first_name,
+          last_name,
+          email,
+          phone_number,
+          birthdate,
+          gender,
+          id_type,
+          id_number,
+          id_front_url,
+          id_back_url,
+        },
+      ]);
+
+      if (insertError) {
+        return alert('Error approving user: ' + insertError.message);
+      }
+
+      await supabase.from('registree_requests').update({ status: 'approved' }).eq('id', id);
+      await supabase.from('registree_requests').delete().eq('id', id);
     }
 
-    await supabase
-      .from('registree_requests')
-      .update({ status: 'approved' })
-      .eq('id', id);
+    if (decision === 'decline') {
+      const { error: declineError } = await supabase
+        .from('registree_requests')
+        .update({ status: 'declined' })
+        .eq('id', id);
 
-    await supabase.from('registree_requests').delete().eq('id', id);
-  }
-
-  if (decision === 'decline') {
-    const { error: declineError } = await supabase
-      .from('registree_requests')
-      .update({ status: 'declined' })
-      .eq('id', id);
-
-    if (declineError) {
-      return alert('Error declining user: ' + declineError.message);
+      if (declineError) {
+        return alert('Error declining user: ' + declineError.message);
+      }
     }
-  }
 
-  setRegistrees(prev => prev.filter(r => r.id !== id));
-};
+    sendNotificationEmail(
+      selected.email,
+      `${selected.first_name} ${selected.last_name}`,
+      decision
+    );
+
+    setRegistrees((prev) => prev.filter((r) => r.id !== id));
+  };
 
   return (
     <div className="registree-tab">
@@ -70,14 +116,22 @@ const handleDecision = async (id, decision) => {
       <table>
         <thead>
           <tr>
-            <th>Name</th><th>Email</th><th>Gender</th><th>Birthdate</th>
-            <th>ID Type</th><th>ID Front</th><th>ID Back</th><th>Action</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th>Birthdate</th>
+            <th>ID Type</th>
+            <th>ID Front</th>
+            <th>ID Back</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {registrees.map(r => (
+          {registrees.map((r) => (
             <tr key={r.id}>
-              <td>{r.first_name} {r.last_name}</td>
+              <td>
+                {r.first_name} {r.last_name}
+              </td>
               <td>{r.email}</td>
               <td>{r.gender}</td>
               <td>{r.birthdate}</td>
@@ -99,8 +153,12 @@ const handleDecision = async (id, decision) => {
                 />
               </td>
               <td>
-                <button className="accept-btn" onClick={() => handleDecision(r.id, 'accept')}>Accept</button>
-                <button className="decline-btn" onClick={() => handleDecision(r.id, 'decline')}>Decline</button>
+                <button className="accept-btn" onClick={() => handleDecision(r.id, 'accept')}>
+                  Accept
+                </button>
+                <button className="decline-btn" onClick={() => handleDecision(r.id, 'decline')}>
+                  Decline
+                </button>
               </td>
             </tr>
           ))}

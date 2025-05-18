@@ -176,3 +176,17 @@
   margin-top: -8px;
   margin-bottom: 8px;
 }
+
+.order-detail-container .back-btn {
+  margin-bottom: 20px;
+  background-color: #000054;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-block;
+  margin-left: 16rem;
+  width: 10rem;
+}

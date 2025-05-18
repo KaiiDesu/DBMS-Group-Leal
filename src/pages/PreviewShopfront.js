@@ -162,33 +162,51 @@ Swal.fire({
             <p>SRP: ₱{item.price}</p>
             <p className="product-description">{item.description}</p>
             <div className="preview-disabled-buttons">
-              <button className="compare-btn" onClick={(e) => {e.stopPropagation(); setShowLoginPopup(true);}}>
-                Login to Add
-              </button>
-              <button className="buy-btn" onClick={(e) => {e.stopPropagation(); setShowLoginPopup(true);}}>
-                Login to Buy
-              </button>
+<button
+  className="compare-btn"
+  onClick={(e) => {
+    e.stopPropagation();
+    Swal.fire({
+      title: 'Oops!',
+      text: 'You must be logged in to add items to your cart.',
+      icon: 'info',
+      confirmButtonText: 'Login Now',
+      showCancelButton: true,
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/login');
+      }
+    });
+  }}
+>
+  Login to Add
+</button>
+<button
+  className="buy-btn"
+  onClick={(e) => {
+    e.stopPropagation();
+    Swal.fire({
+      title: 'Hold on!',
+      text: 'Please log in before placing an order.',
+      icon: 'warning',
+      confirmButtonText: 'Login Now',
+      showCancelButton: true,
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/login');
+      }
+    });
+  }}
+>
+  Login to Buy
+</button>
+
             </div>
           </div>
         ))}
       </section>
-
-        {showLoginPopup && (
-  <div className="login-popup-backdrop" onClick={() => setShowLoginPopup(false)}>
-    <div className="login-popup-box" onClick={(e) => e.stopPropagation()}>
-      <p className="login-popup-title">Oops! Looks like you are not Signed In.</p>
-      <p className="login-popup-subtext">Don't Have an account? <span className="signup-link" onClick={() => navigate('/login')}>Sign Up</span></p>
-      <div className="popup-input-wrapper">
-        <input type="email" placeholder="Email" value={emailInput} onChange={(e) => setEmailInput(e.target.value)}/>
-
-      </div>
-      <button className="popup-continue-btn" onClick={() => navigate(`/login?email=${encodeURIComponent(emailInput)}`)}>
-        Continue
-      </button>
-      <p className="login-popup-footer">By continuing you agree to our <a href="#/policy/privacy">Privacy Policy</a> and <a href="#/policy">Terms & Conditions</a>.</p>
-    </div>
-  </div>
-)}
 
       <Chatbot />
     </div>

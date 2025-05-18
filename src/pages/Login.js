@@ -38,24 +38,33 @@ const prefilledEmail = queryParams.get('email') || '';
 
 const showDisclaimer = () => {
   Swal.fire({
-    title: 'DISCLAIMER',
-    html: `
-      <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
-      This site contains products only suitable for those aged 21 and over. 
-      Please exit if you are underage.<br><br>
-      By clicking accept, you confirm that you are of legal smoking age 
-      and agree to our <a href="#/policy" target="_blank">Terms and Conditions</a>.
-    `,
-    imageUrl: logos,
-    imageWidth: 220,
-    imageHeight: 200,
-    imageAlt: '21+ Icon',
-    showCancelButton: false,
-    confirmButtonText: 'I Accept',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    customClass: { popup: 'swal2-disclaimer' }
-  });
+  title: 'DISCLAIMER',
+  html: `
+    <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
+    This site contains products only suitable for those aged 21 and over. 
+    Please exit if you are underage.<br><br>
+    By clicking accept, you confirm that you are of legal smoking age 
+    and agree to our <a id="terms-link" style="color:#1a0dab; text-decoration:underline; cursor:pointer;">Terms and Conditions</a>.
+  `,
+  imageUrl: logos,
+  imageWidth: 220,
+  imageHeight: 200,
+  imageAlt: '21+ Icon',
+  showCancelButton: false,
+  confirmButtonText: 'I Accept',
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+  customClass: { popup: 'swal2-disclaimer' },
+  didOpen: () => {
+    const link = document.getElementById('terms-link');
+    if (link) {
+      link.onclick = () => {
+        Swal.close();
+        navigate('/policy');
+      };
+    }
+  }
+});
 };
 useEffect(() => {
   showDisclaimer(); // show on page load

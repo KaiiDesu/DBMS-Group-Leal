@@ -215,3 +215,162 @@
     margin-bottom: 25px; /* adjust this if needed */
   }
   
+  .section-title {
+  text-align: center;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+.section-title .highlight {
+  background: #fcd34d;
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: #000;
+}
+
+.sales-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.sales-report-table th {
+  background: #ddd;
+  padding: 12px;
+  font-weight: bold;
+}
+
+.sales-report-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sales-report-table {
+  width: 100%;
+  table-layout: fixed; /* prevents columns from expanding too much */
+  word-wrap: break-word;
+}
+
+.sales-report-table th,
+.sales-report-table td {
+  max-width: 130px; /* adjust as needed */
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-align: center;
+  font-size: 13px;
+  padding: 8px;
+}
+
+.sales-report-table th:nth-child(6), /* Reason column */
+.sales-report-table td:nth-child(6),
+.sales-report-table th:nth-child(8), /* Notes column */
+.sales-report-table td:nth-child(8) {
+  max-width: 100px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.close-modal {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #e53935;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.modal-content .close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e53935;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.close-modal {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #e53935;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}

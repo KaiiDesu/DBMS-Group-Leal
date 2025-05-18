@@ -50,19 +50,26 @@
   font-size: 1rem;
 }
 
-.back-btn {
-  background-color: transparent;
-  border: none;
-  color: #007bff;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  text-decoration: underline;
+
+.header .back-btn:hover {
+  background-color:  #000000;
+  color: white;
 }
 
-.back-btn:hover {
-  color: #0056b3;
+.header .back-btn {
+  background-color: transparent;
+  border: 2px solid black;
+  color: black;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  font-weight: bold;
+  padding: 10px 10px;
+  transition-duration: 0.4s  ;
 }
+
+
 
 @media (max-width: 768px) {
   .policy-container {

@@ -13,10 +13,10 @@ const PolicyPage = () => {
     } else {
       // fallback route when user opens /policy directly
       navigate('/shopfront'); // or '/login' depending on your preferred default
-    }
+    } 
   }}
 >
-  &lt; Back
+  Back
 </button>
       <h1>Terms and Conditions</h1>
     </div>

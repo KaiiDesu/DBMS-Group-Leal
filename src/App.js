@@ -19,10 +19,12 @@ import RefundPolicy from './pages/Policy/RefundPolicy';
 import PrivacyPolicy from './pages/Policy/PrivacyPolicy'
 import LegalitiesPolicy from './pages/Policy/LegalitiesPolicy';
 import IDVerPolicy from './pages/Policy/IDVerPolicy';
+import SellerOrderDetail from './pages/SellerOrderDetail';
 
 import { useEffect } from 'react';                      // 🔁 for useEffect
 import { useNavigate } from 'react-router-dom';         // 🔁 for navigate
 import { supabase } from './supabaseClient'; 
+
 
 
 
@@ -81,6 +83,7 @@ useEffect(() => {
       <Route path="/seller-order/:id" element={<OrderDetailsPage />} />
       <Route path="/confirm" element={<Confirm />} />
       <Route path="/underage" element={<BelowAge />} />
+      <Route path="/seller-order-detail/:id" element={<SellerOrderDetail />} />
       <Route path="/refund" element={<RefundPage/>} />
       <Route path="/policy" element={<Policy/>}/>
       <Route path="/policy/refund" element={<RefundPolicy />} />

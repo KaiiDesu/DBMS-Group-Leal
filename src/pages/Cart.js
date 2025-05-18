@@ -19,6 +19,12 @@ function Cart() {
   const [address, setAddress] = useState('');
   const [contactNumber, setContactNumber] = useState('');
 
+const generateOrderCode = () => {
+  const random6 = Math.floor(100000 + Math.random() * 900000);
+  return `VB-${random6}`;
+};
+
+
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('cart')) || [];
     setCartItems(stored);
@@ -112,15 +118,16 @@ const handleDeleteItem = (id) => {
     }
 
     const orderPayload = {
-      user_id: user.id,
-      items: JSON.stringify(selectedItems),
-      address: address.trim(),
-      contact_number: contactNumber.trim(),
-      total: subtotal + shipping - discount,
-      payment_method: method,
-      status: 'pending', 
-      created_at: new Date().toISOString()
-    };
+  user_id: user.id,
+  code: generateOrderCode(),
+  items: JSON.stringify(selectedItems),
+  address: address.trim(),
+  contact_number: contactNumber.trim(),
+  total: subtotal + shipping - discount,
+  payment_method: method,
+  status: 'pending',
+  created_at: new Date().toISOString()
+};
 
     alert('Submitting order: ' + JSON.stringify(orderPayload));
 
