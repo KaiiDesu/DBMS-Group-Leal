@@ -1,0 +1,29 @@
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Only POST requests allowed' });
+  }
+
+  const { to, subject, html } = req.body;
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer re_LzmN1jb4_K9YLESXfxUuunDi6xBiRC2s5git`, // Your actual Resend API key
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Vape Bureau PH <onboarding@resend.dev>',
+      to,
+      subject,
+      html,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return res.status(response.status).json({ error: data });
+  }
+
+  return res.status(200).json({ success: true, id: data.id });
+}
