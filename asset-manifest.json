@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/DBMS-Group-Leal/static/css/main.3db5eeb6.css",
-    "main.js": "/DBMS-Group-Leal/static/js/main.35d12eac.js",
+    "main.css": "/DBMS-Group-Leal/static/css/main.4b717d0c.css",
+    "main.js": "/DBMS-Group-Leal/static/js/main.408f311b.js",
     "static/js/952.863d25c7.chunk.js": "/DBMS-Group-Leal/static/js/952.863d25c7.chunk.js",
     "static/js/453.2e78be2b.chunk.js": "/DBMS-Group-Leal/static/js/453.2e78be2b.chunk.js",
     "static/media/vapebg.jpg": "/DBMS-Group-Leal/static/media/vapebg.3127340151569ee04a63.jpg",
@@ -13,13 +13,13 @@
     "static/media/cod-icon.png": "/DBMS-Group-Leal/static/media/cod-icon.727133cd16cfe5de9fb4.png",
     "static/media/gcash-logo.png": "/DBMS-Group-Leal/static/media/gcash-logo.97e6e58fc5b4082d30bf.png",
     "index.html": "/DBMS-Group-Leal/index.html",
-    "main.3db5eeb6.css.map": "/DBMS-Group-Leal/static/css/main.3db5eeb6.css.map",
-    "main.35d12eac.js.map": "/DBMS-Group-Leal/static/js/main.35d12eac.js.map",
+    "main.4b717d0c.css.map": "/DBMS-Group-Leal/static/css/main.4b717d0c.css.map",
+    "main.408f311b.js.map": "/DBMS-Group-Leal/static/js/main.408f311b.js.map",
     "952.863d25c7.chunk.js.map": "/DBMS-Group-Leal/static/js/952.863d25c7.chunk.js.map",
     "453.2e78be2b.chunk.js.map": "/DBMS-Group-Leal/static/js/453.2e78be2b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3db5eeb6.css",
-    "static/js/main.35d12eac.js"
+    "static/css/main.4b717d0c.css",
+    "static/js/main.408f311b.js"
   ]
 }
