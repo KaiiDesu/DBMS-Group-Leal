@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import './SellerOrders.css';
 import { motion, AnimatePresence } from 'framer-motion';
+
 
 const SellerOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -14,8 +15,11 @@ const SellerOrders = () => {
   const [currentStatus, setCurrentStatus] = useState('');
   const statusOrder = ['to ship', 'shipped', 'delivered', 'cancelled', 'refunded'];
   const [allOrders, setAllOrders] = useState([]);
+  const [recordedSalesIds, setRecordedSalesIds] = useState([]);
 
-  
+  const items = useMemo(() => {
+  return selectedOrder ? JSON.parse(selectedOrder.items || '[]') : [];
+}, [selectedOrder]);
 
   useEffect(() => {
     fetchOrders();
@@ -42,11 +46,11 @@ useEffect(() => {
 
     const { data, error } = await supabase
       .from('orders')
-      .select('status');
+      .select('*, profiles(first_name, last_name)')
 
     if (!error) {
       setAllOrders(data || []);
-    }
+    } 
   };
 
   fetchAllOrders();
@@ -68,7 +72,9 @@ useEffect(() => {
     }
     const { data, error } = await supabase
       .from('orders')
-      .select('id, code, user_id, address, total, status, items, profiles: profiles (first_name, last_name, email)')
+      .select('id, code, user_id, seller_id, address, total, status, items, payment_method, profiles: profiles (first_name, last_name, email)')
+
+
       .eq('status', viewStatus);
 
     if (error) {
@@ -98,21 +104,65 @@ useEffect(() => {
     }
   };
 
-  const handleStatusChange = async (newStatus) => {
-    if (!selectedOrder || newStatus === currentStatus) return;
+const handleStatusChange = async (newStatus) => {
+  if (!selectedOrder) return;
 
-    const { error } = await supabase
-      .from('orders')
-      .update({ status: newStatus })
-      .eq('id', selectedOrder.id);
+  const { data: user } = await supabase.auth.getUser();
+  const seller_id = selectedOrder.seller_id || user?.user?.id;
 
-    if (!error) {
-      setCurrentStatus(newStatus);
+  // ✅ Prevent inserting twice
+  const alreadyRecorded = recordedSalesIds.includes(selectedOrder.id);
+
+if (newStatus === 'delivered' && !alreadyRecorded) {
+const insertData = items.map((item) => ({
+  seller_id: seller_id,
+  product: item.name,
+  cost: item.price,
+  quantity: item.quantity,
+  created_at: new Date().toISOString(),
+  formatted_date: new Date().toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+  }),
+   payment_method: selectedOrder.payment_method || "N/A",
+  sales: item.price * item.quantity,
+}));
+
+    const { error: insertError } = await supabase
+      .from('sales_report')
+      .insert(insertData);
+
+    if (insertError) {
+      console.error('❌ Failed to insert into sales_report:', insertError.message);
     } else {
-      alert('Failed to update status.');
-      console.error(error);
+      // ✅ Flag the order as already inserted
+      await supabase
+  .from('orders')
+  .update({ delivered_to_sales_report: true })
+  .eq('id', selectedOrder.id);
+  setRecordedSalesIds([...recordedSalesIds, selectedOrder.id]);
+
     }
-  };
+  }
+
+  // ✅ Update status regardless
+  const { error: statusError } = await supabase
+    .from('orders')
+    .update({ status: newStatus })
+    .eq('id', selectedOrder.id);
+
+  if (statusError) {
+    console.error('❌ Failed to update order status:', statusError.message);
+  } else {
+    setCurrentStatus(newStatus);
+    fetchOrders(); // Optional: to refresh order list
+  }
+};
+
+
+
+  
 
   const filteredOrders = orders.filter((order) => {
     const fullName = `${order.profiles?.first_name ?? ''} ${order.profiles?.last_name ?? ''}`;
@@ -128,7 +178,7 @@ useEffect(() => {
   });
 
   if (selectedOrder) {
-    const items = JSON.parse(selectedOrder.items || '[]');
+    
 
 
     return (
