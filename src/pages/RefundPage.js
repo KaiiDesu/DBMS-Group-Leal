@@ -105,7 +105,7 @@ if (existing.length > 0) {
       purchase_date: purchaseDate,
       proof_url: proofUrl,
       notes,
-      seller_id: user.id
+      seller_id: "ae0a32a7-6fa5-48e3-8862-98fbacd3b3ef"
     }]);
 
     if (error) {
