@@ -1,6 +1,7 @@
 import React from 'react';
 import './AboutUs.css';
 import { useNavigate } from 'react-router-dom'; 
+import image from './aboutuspic.png';
 
 export default function AboutUs() {
 
@@ -22,6 +23,10 @@ export default function AboutUs() {
             satisfaction means we are always here to answer your questions, offer recommendations, and provide support.</p>
       </div>
 
+              <div className="image-block">
+          <img src={image} alt="Goals" />
+        </div>
+
       {/* Company Information */}
       <div className="section company-info">
         <div className="text-block">
@@ -32,16 +37,10 @@ export default function AboutUs() {
             Vape Bureau PH is committed to delivering premium vape products to customers across Luzon. Their mission is rooted not just in retail,
             but in fostering community and trust within the industry.</p>
         </div>
-        <div className="image-block circle">
-          <img src="/placeholder.jpg" alt="Company" />
-        </div>
       </div>
 
       {/* Vision & Growth */}
       <div className="section vision-growth">
-        <div className="image-block">
-          <img src="/placeholder.jpg" alt="Vision & Growth" />
-        </div>
         <div className="text-block">
           <h2>Vision & Growth</h2>
           <p>Vape Bureau PH believes in collaboration over competition. The company continues to thrive by building meaningful relationships 
@@ -56,9 +55,6 @@ export default function AboutUs() {
           <h2>Goals</h2>
           <p>Looking ahead to 2025, Vape Bureau PH aims to establish a dedicated warehouse facility. This strategic move will streamline
             inventory management, improve logistics, and support the company’s next phase of growth.</p>
-        </div>
-        <div className="image-block">
-          <img src="/placeholder.jpg" alt="Goals" />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import './UploadOrderPage.css';
 import { supabase } from '../supabaseClient';
 
@@ -9,6 +9,35 @@ function UploadOrderPage({ onCancel }) {
   const [productQuantity, setProductQuantity] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [sellerName, setSellerName] = useState('');
+
+    useEffect(() => {
+      const fetchSellerName = async () => {
+        const {
+          data: { user },
+          error: authError
+        } = await supabase.auth.getUser();
+    
+        if (authError || !user) {
+          console.error('Auth error:', authError?.message || 'No user found');
+          return;
+        }
+    
+        const { data, error } = await supabase
+          .from('sellers')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+    
+        if (error) {
+          console.error('Error fetching seller name:', error.message);
+        } else {
+          setSellerName(`${data.first_name}` .replace(/\b\w/g, char => char.toUpperCase()));
+        }
+      };
+    
+      fetchSellerName();
+    }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -83,6 +112,12 @@ function UploadOrderPage({ onCancel }) {
 
   return (
     <div className="upload-container">
+                  <header className="dashboard-header">
+              <div className="user-info">
+              <span className="username">Seller: <b>{sellerName || 'Seller'}</b> </span>
+                
+              </div>
+            </header>
       <h2 className="upload-title">Basic information</h2>
 
       <div className="form-group image-upload">

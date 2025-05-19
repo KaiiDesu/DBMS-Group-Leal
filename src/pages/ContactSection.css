@@ -1,6 +1,6 @@
 /* ContactSection.css */
 .contact-container {
-  background: linear-gradient(rgba(0, 0, 80, 0.8), rgba(0, 0, 80, 0.8)), url('./vapebg.jpg') center/cover no-repeat;
+  background: linear-gradient(rgba(0, 0, 80, 0.8), rgba(0, 0, 80, 0.8)), url('./vapebg.png') center/cover no-repeat;
   color: #fff;
   padding: 60px 30px;
   text-align: center;

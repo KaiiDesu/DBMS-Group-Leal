@@ -58,6 +58,7 @@
     font-size: 1rem;
     line-height: 1.5;
     font-family: 'Times New Roman', Times, serif;
+    text-align: justify;
   }
   
   /* STANDARD IMAGE BLOCK */
@@ -69,8 +70,10 @@
   }
   .image-block img {
     width: 100%;
-    max-width: 450px;
+    max-width: 600px;
     border-radius: 12px;
+    height: 100%;
+    max-height: 400px;
   }
   
   /* PERFECT CIRCLE FOR COMPANY INFO */

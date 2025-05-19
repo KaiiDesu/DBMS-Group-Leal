@@ -488,11 +488,12 @@ if (formType === 'signup') {
     *Review your personal information to ensure it is correct and complete. By clicking the checkbox,
     you confirm that the information you have provided is correct and complete.
   </p>
-  <p className="terms-link">
-    
-      Click here to see the <a href="#/policy" target="_blank" rel="noopener noreferrer">Terms and Condition
-    </a>
-  </p>
+<p className="terms-link">
+  Click here to see the <span style={{ color: '#ffffff', cursor: 'pointer', textDecoration: 'underline' }}
+    onClick={() => navigate('/policy?back=signup')}>
+    Terms and Conditions
+  </span>
+</p>
 
   <label className="checkbox-line">
     <input

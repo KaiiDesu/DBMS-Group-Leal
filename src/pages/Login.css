@@ -10,12 +10,26 @@ overflow-y: auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #ffffff;
   font-family: 'Arial', sans-serif;
   padding: 20px;
   overflow-x: hidden;
 }
 
+.warning-text .highlight{
+  color: red;
+}
+
+  .warning-text{
+    font-size: 16px;
+    animation: blink .8s infinite alternate;
+    margin-bottom: 16px;
+  }
+  
+  @keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
 .login-logo {
   position: absolute;
   top: 20px;

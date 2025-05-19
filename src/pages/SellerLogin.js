@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useRef } from 'react';
 import './Login.css';
 import logo from '../pages/logovape.png';
 import { supabase } from '../supabaseClient';
@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 function SellerLogin() {
   const [formType, setFormType] = useState('login');
   const [step, setStep] = useState(1);
+  const suppressRedirectRef = useRef(false);
   const [cooldown, setCooldown] = useState(0);
   const [formData, setFormData] = useState({
     email: '',
@@ -34,9 +35,9 @@ function SellerLogin() {
         .eq('id', session.user.id)
         .single();
 
-      if (seller) {
-        navigate('/seller-dashboard');
-      }
+if (seller && !suppressRedirectRef.current) {
+  navigate('/seller-dashboard');
+}
     }
   };
 
@@ -73,6 +74,8 @@ function SellerLogin() {
 
   
   const handleForgotFlow = async (e) => {
+    
+     if (formType === 'forgot') suppressRedirectRef.current = true; 
     e.preventDefault();
     const { email, otp, newPassword, confirmPassword } = formData;
 
@@ -98,6 +101,7 @@ function SellerLogin() {
       if (newPassword !== confirmPassword) return setPopupMsg("Passwords don't match.");
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) return setPopupMsg('Failed to update password: ' + error.message);
+      localStorage.setItem('justResetPassword', 'true');
       setPopupMsg('Password successfully updated!');
       setFormType('login');
       resetForm();
@@ -215,12 +219,12 @@ function SellerLogin() {
 
       <form onSubmit={formType === 'forgot' ? handleForgotFlow : handleSubmit} className="login-form">
         <p className="switch-text">
-          {formType === 'signup' ? 'Have an account? ' : formType === 'forgot' ? 'Back to ' : "Don't have an account? "}
+          {formType === 'signup' ? 'Have an account? ' : formType === 'forgot'}
           <span onClick={() => {
             resetForm();
             setFormType(formType === 'signup' ? 'login' : formType === 'forgot' ? 'login' : 'signup');
           }}>
-            {formType === 'signup' ? 'Login' : formType === 'forgot' ? 'Login' : 'Register'}
+            {formType === 'signup' ? 'Login' : formType === 'forgot'}
           </span>
         </p>
 
@@ -250,6 +254,12 @@ function SellerLogin() {
             <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
           </div>
         )}
+      <div className="warning-text">
+        <p>
+          <center><b>* </b><span className="highlight"><b>WARNING</b></span>: <b>Don’t forget your One-Time Password (OTP)! *</b></center>
+
+        </p>
+      </div>
 
         {formType === 'forgot' && step === 2 && (
           <>
@@ -292,15 +302,6 @@ function SellerLogin() {
               <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} required />
             </div>
           </>
-        )}
-
-        {formType === 'login' && (
-          <p className="forgot-text">
-            <span onClick={() => {
-              resetForm();
-              setFormType('forgot');
-            }}>Forgot password?</span>
-          </p>
         )}
 
         <button type="submit">
