@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './InventoryPage.css';
 import { supabase } from '../supabaseClient';
 import ProductEditPopup from './ProductEditPopup';
+import Swal from 'sweetalert2';
 
 function InventoryPage() {
   const [products, setProducts] = useState([]);
@@ -21,18 +22,26 @@ function InventoryPage() {
     setEditingProductId(id);
   };
 
-  const handleDeleteClick = async (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
-    if (!confirmDelete) return;
+const handleDeleteClick = async (id) => {
+  const result = await Swal.fire({
+    title: 'Delete Product?',
+    text: 'Are you sure you want to delete this product?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+  });
 
+  if (result.isConfirmed) {
     const { error } = await supabase.from('products').delete().eq('id', id);
     if (error) {
-      alert('❌ Failed to delete product: ' + error.message);
+      Swal.fire('Error', '❌ Failed to delete product: ' + error.message, 'error');
     } else {
-      alert('🗑️ Product deleted.');
+      Swal.fire('Deleted!', '🗑️ Product deleted.', 'success');
       fetchProducts();
     }
-  };
+  }
+};
 
   const closeEditPopup = () => {
     setEditingProductId(null);

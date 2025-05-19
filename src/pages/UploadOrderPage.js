@@ -1,6 +1,7 @@
 import React, { useState , useEffect } from 'react';
 import './UploadOrderPage.css';
 import { supabase } from '../supabaseClient';
+import Swal from 'sweetalert2';
 
 function UploadOrderPage({ onCancel }) {
   const [productName, setProductName] = useState('');
@@ -10,6 +11,7 @@ function UploadOrderPage({ onCancel }) {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [sellerName, setSellerName] = useState('');
+  
 
     useEffect(() => {
       const fetchSellerName = async () => {
@@ -51,63 +53,59 @@ function UploadOrderPage({ onCancel }) {
     }
   };
 
-  const uploadImageToStorage = async () => {
-    if (!imageFile) return null;
-    const fileName = `${Date.now()}-${imageFile.name}`;
-    const { data, error } = await supabase.storage.from('product-images').upload(fileName, imageFile);
-    if (error) {
-      alert('Image upload failed: ' + error.message);
-      return null;
-    }
-    const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
-    return urlData.publicUrl;
-  };
+const uploadImageToStorage = async () => {
+  if (!imageFile) return null;
+  const fileName = `${Date.now()}-${imageFile.name}`;
+  const { data, error } = await supabase.storage.from('product-images').upload(fileName, imageFile);
+  if (error) {
+    Swal.fire('Upload Error', 'Image upload failed: ' + error.message, 'error');
+    return null;
+  }
+  const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
+  return urlData.publicUrl;
+};
 
-  const handleSubmit = async (isPublish) => {
-    if (!productName || !productPrice || !productQuantity || !imageFile) {
-      alert("Please complete all required fields including image upload.");
-      return;
-    }
-  
-    if (productPrice <= 0 || productQuantity < 0) {
-      alert("Price must be more than ₱0 and quantity cannot be negative.");
-      return;
-    }
-  
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      alert("❌ Not logged in or failed to fetch user.");
-      return;
-    }
-  
-    const imageUrl = await uploadImageToStorage();
-    if (!imageUrl) return;
-  
-    const { error } = await supabase.from('products').insert([
-      {
-        name: productName,
-        description: productDescription,
-        price: parseFloat(productPrice),
-        quantity: parseInt(productQuantity),
-        image_url: imageUrl,
-        is_sold_out: !isPublish, // ✅ Add this line
-      },
-    ]);
-  
-    if (error) {
-      alert('❌ Product insert failed: ' + error.message);
-      console.error('Insert failed:', error);
-    } else {
-      alert('✅ Product successfully uploaded!');
-      setProductName('');
-      setProductDescription('');
-      setProductPrice('');
-      setProductQuantity('');
-      setImageFile(null);
-      setImagePreview(null);
-      onCancel();
-    }
-  };
+const handleSubmit = async (isPublish) => {
+  if (!productName || !productPrice || !productQuantity || !imageFile) {
+    return Swal.fire('Missing Fields', 'Please complete all required fields including image upload.', 'warning');
+  }
+
+  if (productPrice <= 0 || productQuantity < 0) {
+    return Swal.fire('Invalid Values', 'Price must be more than ₱0 and quantity cannot be negative.', 'warning');
+  }
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return Swal.fire('User Error', '❌ Not logged in or failed to fetch user.', 'error');
+  }
+
+  const imageUrl = await uploadImageToStorage();
+  if (!imageUrl) return;
+
+  const { error } = await supabase.from('products').insert([{
+    name: productName,
+    description: productDescription,
+    price: parseFloat(productPrice),
+    quantity: parseInt(productQuantity),
+    image_url: imageUrl,
+    is_sold_out: !isPublish,
+  }]);
+
+  if (error) {
+    console.error('Insert failed:', error);
+    return Swal.fire('Insert Error', '❌ Product insert failed: ' + error.message, 'error');
+  }
+
+  Swal.fire('Success', '✅ Product successfully uploaded!', 'success');
+  setProductName('');
+  setProductDescription('');
+  setProductPrice('');
+  setProductQuantity('');
+  setImageFile(null);
+  setImagePreview(null);
+  onCancel();
+};
+
   
 
   return (
@@ -181,7 +179,6 @@ function UploadOrderPage({ onCancel }) {
       </div>
 
       <div className="button-group">
-        <button className="btn cancel" onClick={onCancel}>Cancel</button>
         <button className="btn publish" onClick={() => handleSubmit(true)}>Save and Publish</button>
       </div>
     </div>

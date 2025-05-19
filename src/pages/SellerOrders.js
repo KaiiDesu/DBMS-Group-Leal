@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo , useRef } from 'react';
 import { supabase } from '../supabaseClient';
 import './SellerOrders.css';
 import { motion, AnimatePresence } from 'framer-motion';
-
 
 const SellerOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -13,56 +12,41 @@ const SellerOrders = () => {
   const [acceptedOrders, setAcceptedOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [currentStatus, setCurrentStatus] = useState('');
-  const statusOrder = ['to ship', 'shipped', 'delivered', 'cancelled', 'refunded'];
   const [allOrders, setAllOrders] = useState([]);
   const [recordedSalesIds, setRecordedSalesIds] = useState([]);
 
-  const items = useMemo(() => {
-  return selectedOrder ? JSON.parse(selectedOrder.items || '[]') : [];
-}, [selectedOrder]);
+  const statusOrder = ['to ship', 'shipped', 'delivered', 'cancelled', 'refunded'];
 
+  const viewStatusRef = useRef(viewStatus);
   useEffect(() => {
-    fetchOrders();
+    viewStatusRef.current = viewStatus;
   }, [viewStatus]);
 
-useEffect(() => {
+  const items = useMemo(() => {
+    return selectedOrder ? JSON.parse(selectedOrder.items || '[]') : [];
+  }, [selectedOrder]);
+
   const fetchAllOrders = async () => {
-    const { data } = await supabase.from('orders').select('status');
-    setAllOrders(data || []);
-  };
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
 
-  const interval = setInterval(() => {
-    fetchOrders();
-    fetchAllOrders();
-  }, 5000);
-
-  return () => clearInterval(interval);
-}, []);
-
-  useEffect(() => {
-  const fetchAllOrders = async () => {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) return;
 
     const { data, error } = await supabase
       .from('orders')
-      .select('*, profiles(first_name, last_name)')
+      .select('*, profiles(first_name, last_name)');
 
-    if (!error) {
-      setAllOrders(data || []);
-    } 
+    if (error) {
+      console.error('Error fetching orders:', error.message);
+      return;
+    }
+
+    setAllOrders(data || []);
   };
 
-  fetchAllOrders();
-}, []);
-
-useEffect(() => {
-  if (selectedOrder) {
-    setCurrentStatus(selectedOrder.status);
-  }
-}, [selectedOrder]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = async (statusOverride) => {
     setLoading(true);
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -70,26 +54,41 @@ useEffect(() => {
       setLoading(false);
       return;
     }
+
+    const currentStatus = statusOverride || viewStatus;
+
     const { data, error } = await supabase
       .from('orders')
       .select('id, code, user_id, seller_id, address, total, status, items, payment_method, profiles: profiles (first_name, last_name, email)')
-
-
-      .eq('status', viewStatus);
+      .eq('status', currentStatus);
 
     if (error) {
       console.error('Error fetching orders:', error);
     } else {
-      setOrders(data);
+      setOrders(data || []);
     }
+
     setLoading(false);
   };
 
-  const statusCounts = allOrders.reduce((acc, order) => {
-  const status = order.status;
-  acc[status] = (acc[status] || 0) + 1;
-  return acc;
-}, {});
+  useEffect(() => {
+    fetchOrders(viewStatus);
+    fetchAllOrders();
+  }, [viewStatus]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchOrders(viewStatusRef.current);
+      fetchAllOrders();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setCurrentStatus(selectedOrder.status);
+    }
+  }, [selectedOrder]);
 
   const handleAccept = async (orderId) => {
     const { error } = await supabase
@@ -104,65 +103,62 @@ useEffect(() => {
     }
   };
 
-const handleStatusChange = async (newStatus) => {
-  if (!selectedOrder) return;
+  const handleStatusChange = async (newStatus) => {
+    if (!selectedOrder) return;
 
-  const { data: user } = await supabase.auth.getUser();
-  const seller_id = selectedOrder.seller_id || user?.user?.id;
+    const { data: user } = await supabase.auth.getUser();
+    const seller_id = selectedOrder.seller_id || user?.user?.id;
+    const alreadyRecorded = recordedSalesIds.includes(selectedOrder.id);
 
-  // ✅ Prevent inserting twice
-  const alreadyRecorded = recordedSalesIds.includes(selectedOrder.id);
+    if (newStatus === 'delivered' && !alreadyRecorded) {
+      const insertData = items.map((item) => ({
+        seller_id: seller_id,
+        product: item.name,
+        cost: item.price,
+        quantity: item.quantity,
+        created_at: new Date().toISOString(),
+        formatted_date: new Date().toLocaleDateString('en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric',
+        }),
+        payment_method: selectedOrder.payment_method || "N/A",
+        sales: item.price * item.quantity,
+      }));
 
-if (newStatus === 'delivered' && !alreadyRecorded) {
-const insertData = items.map((item) => ({
-  seller_id: seller_id,
-  product: item.name,
-  cost: item.price,
-  quantity: item.quantity,
-  created_at: new Date().toISOString(),
-  formatted_date: new Date().toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
-  }),
-   payment_method: selectedOrder.payment_method || "N/A",
-  sales: item.price * item.quantity,
-}));
+      const { error: insertError } = await supabase
+        .from('sales_report')
+        .insert(insertData);
 
-    const { error: insertError } = await supabase
-      .from('sales_report')
-      .insert(insertData);
-
-    if (insertError) {
-      console.error('❌ Failed to insert into sales_report:', insertError.message);
-    } else {
-      // ✅ Flag the order as already inserted
-      await supabase
-  .from('orders')
-  .update({ delivered_to_sales_report: true })
-  .eq('id', selectedOrder.id);
-  setRecordedSalesIds([...recordedSalesIds, selectedOrder.id]);
-
+      if (insertError) {
+        console.error('❌ Failed to insert into sales_report:', insertError.message);
+      } else {
+        await supabase
+          .from('orders')
+          .update({ delivered_to_sales_report: true })
+          .eq('id', selectedOrder.id);
+        setRecordedSalesIds([...recordedSalesIds, selectedOrder.id]);
+      }
     }
-  }
 
-  // ✅ Update status regardless
-  const { error: statusError } = await supabase
-    .from('orders')
-    .update({ status: newStatus })
-    .eq('id', selectedOrder.id);
+    const { error: statusError } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', selectedOrder.id);
 
-  if (statusError) {
-    console.error('❌ Failed to update order status:', statusError.message);
-  } else {
-    setCurrentStatus(newStatus);
-    fetchOrders(); // Optional: to refresh order list
-  }
-};
+    if (statusError) {
+      console.error('❌ Failed to update order status:', statusError.message);
+    } else {
+      setCurrentStatus(newStatus);
+      fetchOrders();
+    }
+  };
 
-
-
-  
+  const statusCounts = allOrders.reduce((acc, order) => {
+    const status = order.status;
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
 
   const filteredOrders = orders.filter((order) => {
     const fullName = `${order.profiles?.first_name ?? ''} ${order.profiles?.last_name ?? ''}`;
@@ -178,23 +174,16 @@ const insertData = items.map((item) => ({
   });
 
   if (selectedOrder) {
-    
-
-
     return (
       <div className="order-detail-container">
         <button className="back-btn" onClick={() => setSelectedOrder(null)}>← Back to Orders</button>
-
-<div className="status-tracker">
-  {statusOrder.map((step) => (
-    <div
-      key={step}
-      className={`step ${statusOrder.indexOf(step) <= statusOrder.indexOf(currentStatus) ? 'done' : ''}`}
-    >
-      {step.charAt(0).toUpperCase() + step.slice(1)}
-    </div>
-  ))}
-</div>
+        <div className="status-tracker">
+          {statusOrder.map((step) => (
+            <div key={step} className={`step ${statusOrder.indexOf(step) <= statusOrder.indexOf(currentStatus) ? 'done' : ''}`}>
+              {step.charAt(0).toUpperCase() + step.slice(1)}
+            </div>
+          ))}
+        </div>
 
         <div className="info-box">
           <h3>🚚 Shipping Information</h3>
@@ -209,7 +198,7 @@ const insertData = items.map((item) => ({
         </div>
 
         <div className="status-button">
-          {['to ship', 'shipped', 'delivered', 'cancelled', 'refunded'].map((status) => (
+          {statusOrder.map((status) => (
             <button
               key={status}
               className={currentStatus === status ? 'active-status' : ''}
@@ -247,22 +236,21 @@ const insertData = items.map((item) => ({
     <div className="seller-orders-container">
       <h2>Order</h2>
       <div className="orders-topbar">
-<div className="status-toggle">
-  {['pending', 'accepted', 'to ship', 'shipped', 'delivered', 'cancelled', 'refunded'].map((status) => (
-    <div key={status} className="status-tab-wrapper">
-      <button
-        className={viewStatus === status ? 'active' : ''}
-        onClick={() => setViewStatus(status)}
-      >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </button>
-      {statusCounts[status] > 0 && (
-        <span className="notif-badge">{statusCounts[status]}</span>
-      )}
-    </div>
-  ))}
-</div>
-
+        <div className="status-toggle">
+          {['pending', 'accepted', 'to ship', 'shipped', 'delivered', 'cancelled', 'refunded'].map((status) => (
+            <div key={status} className="status-tab-wrapper">
+              <button
+                className={viewStatus === status ? 'active' : ''}
+                onClick={() => setViewStatus(status)}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+              {statusCounts[status] > 0 && (
+                <span className="notif-badge">{statusCounts[status]}</span>
+              )}
+            </div>
+          ))}
+        </div>
 
         <input
           className="search-bar"
@@ -297,31 +285,30 @@ const insertData = items.map((item) => ({
                 <td style={{ perspective: 600 }}>
                   <AnimatePresence mode="wait" initial={false}>
                     {order.status === 'pending' ? (
-  <motion.button
-    key="accept"
-    className="accept-btn"
-    onClick={() => handleAccept(order.id)}
-    initial={{ rotateY: -90, opacity: 0 }}
-    animate={{ rotateY: 0, opacity: 1 }}
-    exit={{ rotateY: 90, opacity: 0 }}
-    transition={{ duration: 0.5 }}
-  >
-    Accept
-  </motion.button>
-) : (
-  <motion.button
-    key="view"
-    className="view-btn"
-    onClick={() => setSelectedOrder(order)}
-    initial={{ rotateY: 90, opacity: 0 }}
-    animate={{ rotateY: 0, opacity: 1 }}
-    exit={{ rotateY: -90, opacity: 0 }}
-    transition={{ duration: 0.5 }}
-  >
-    View Order
-  </motion.button>
-)}
-
+                      <motion.button
+                        key="accept"
+                        className="accept-btn"
+                        onClick={() => handleAccept(order.id)}
+                        initial={{ rotateY: -90, opacity: 0 }}
+                        animate={{ rotateY: 0, opacity: 1 }}
+                        exit={{ rotateY: 90, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        Accept
+                      </motion.button>
+                    ) : (
+                      <motion.button
+                        key="view"
+                        className="view-btn"
+                        onClick={() => setSelectedOrder(order)}
+                        initial={{ rotateY: 90, opacity: 0 }}
+                        animate={{ rotateY: 0, opacity: 1 }}
+                        exit={{ rotateY: -90, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        View Order
+                      </motion.button>
+                    )}
                   </AnimatePresence>
                 </td>
               </tr>

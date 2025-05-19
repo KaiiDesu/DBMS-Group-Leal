@@ -19,17 +19,15 @@ function SellerRefunds() {
         return;
       }
 
-      console.log('Seller ID:', user.id);
-
       const { data, error } = await supabase
         .from('refund_requests')
         .select('*')
+        .eq('seller_id', user.id)
         .order('submitted_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching refunds:', error);
       } else {
-        console.log('Fetched refunds:', data);
         setRefunds(data);
       }
     } catch (err) {
@@ -41,7 +39,7 @@ function SellerRefunds() {
     fetchRefunds();
   }, []);
 
-  const handleAction = async (id, action) => {
+  const handleAction = async (refund, action) => {
     const result = await Swal.fire({
       title: `${action} this refund?`,
       icon: 'question',
@@ -50,23 +48,44 @@ function SellerRefunds() {
       cancelButtonText: 'Cancel'
     });
 
-    if (result.isConfirmed) {
-      const { error } = await supabase
-        .from('refund_requests')
-        .update({
-          status: action,
-          reviewed_at: new Date().toISOString()
-        })
-        .eq('id', id);
+    if (!result.isConfirmed) return;
 
-      if (error) {
-        console.error('Update failed:', error);
-        Swal.fire('Error', 'Failed to update refund status.', 'error');
-      } else {
-        Swal.fire('Success', `Refund marked as ${action}.`, 'success');
-        fetchRefunds();
+    const { error: updateError } = await supabase
+      .from('refund_requests')
+      .update({
+        status: action,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', refund.id);
+
+    if (updateError) {
+      console.error('Update failed:', updateError);
+      return Swal.fire('Error', 'Failed to update refund status.', 'error');
+    }
+
+    if (action === 'Approved') {
+      const { error: insertError } = await supabase.from('sales_report').insert([{
+        product: refund.product_name,
+        cost: -1 * parseFloat(refund.product_price || 0),
+        quantity: 1,
+        seller_id: refund.seller_id,
+        payment_method: 'Refund',
+        formatted_date: new Date().toISOString().split('T')[0],
+        sales: -1 * parseFloat(refund.product_price || 0)
+      }]);
+
+      if (insertError) {
+        console.error('Insert to report failed:', insertError);
+        return Swal.fire('Partial Success', 'Refund approved but failed to log report.', 'warning');
       }
     }
+
+    Swal.fire('Success', `Refund marked as ${action}.`, 'success');
+    setRefunds((prevRefunds) =>
+    prevRefunds.map((item) =>
+    item.id === refund.id ? { ...item, status: action, reviewed_at: new Date().toISOString() } : item
+  )
+);
   };
 
   const closeModal = () => setSelectedImage(null);
@@ -110,8 +129,12 @@ function SellerRefunds() {
                   <td>{r.notes || '-'}</td>
                   <td>{r.status || 'Pending'}</td>
                   <td>
-                    <button onClick={() => handleAction(r.id, 'Approved')}>Approve</button>
-                    <button onClick={() => handleAction(r.id, 'Rejected')}>Reject</button>
+                    {r.status === 'Pending' ? (
+                      <>
+                        <button onClick={() => handleAction(r, 'Approved')}>Approve</button>
+                        <button onClick={() => handleAction(r, 'Rejected')}>Reject</button>
+                      </>
+                    ) : null}
                   </td>
                 </tr>
               ))}
