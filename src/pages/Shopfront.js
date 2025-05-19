@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Chatbot from '../components/Chatbot';
 import logo from '../components/logovape.png';
 import cartIcon from '../components/images/cart-icon.png';
+import logos from '../components/images/21age.png'
 
 function Shopfront({ previewMode = false }) {
   const scrollTargetRef = useRef(null);
@@ -37,47 +38,42 @@ function Shopfront({ previewMode = false }) {
   const navigate = useNavigate();
   const toggleUserDropdown = () => setIsDropdownOpen(open => !open);
 
-  useEffect(() => {
+useEffect(() => {
   if (!previewMode) {
-Swal.fire({
-  title: '21+ DISCLAIMER',
-  html: `
-    <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
-    This site contains products only suitable for ages 21 and above. Please exit if you do not meet the required age. 
-    <br><br>
-    By clicking accept, you confirm that you are of legal smoking age 
-    and agree to our <a id="terms-link" style="color:#1a0dab; text-decoration:underline; cursor:pointer;">Terms and Conditions</a>.
-  `,
-  icon: 'warning',
-  showCancelButton: false,
-  confirmButtonText: 'I Accept',
-  allowOutsideClick: false,
-  allowEscapeKey: false,
-  customClass: {
-    popup: 'swal2-disclaimer',
-  },
-  didOpen: () => {
-    const termsLink = document.getElementById('terms-link');
-    if (termsLink) {
-      termsLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        Swal.close();                // Close the disclaimer manually
-        setShowDisclaimer(false);   // Hide it from React state
-        navigate('/policy');        // Navigate to Terms page
-      });
-    }
-  }
-}).then(() => {
-  setShowDisclaimer(false);
-});
-    setTimeout(() => {
-  const termsLink = document.getElementById('terms-link');
-  if (termsLink) {
-    termsLink.onclick = () => navigate('/policy');
-  }
-}, 0);
+    Swal.fire({
+      title: 'DISCLAIMER',
+      html: `
+        <strong style="color:#e53935;">!!THIS SHOP ONLY ALLOWS 21+ YEARS OLD!!</strong><br><br>
+        This site contains products only suitable for those aged 21 and over. 
+        Please exit if you are underage.<br><br>
+        By clicking accept, you confirm that you are of legal smoking age 
+        and agree to our <a id="terms-link" style="color:#1a0dab; text-decoration:underline; cursor:pointer;">Terms and Conditions</a>.
+      `,
+      imageUrl: logos,
+      imageWidth: 220,
+      imageHeight: 200,
+      imageAlt: '21+ Icon',
+      showCancelButton: false,
+      confirmButtonText: 'I Accept',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      customClass: { popup: 'swal2-disclaimer' },
+      didOpen: () => {
+        const link = document.getElementById('terms-link');
+        if (link) {
+          link.addEventListener('click', (e) => {
+            e.stopPropagation();  // prevent confirm from immediately closing
+            navigate('/policy');
+            Swal.close();
+          });
+        }
+      }
+    }).then(() => {
+      setShowDisclaimer(false);
+    });
   }
 }, []);
+
 
 
   useEffect(() => {

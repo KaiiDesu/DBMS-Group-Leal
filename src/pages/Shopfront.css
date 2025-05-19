@@ -608,7 +608,7 @@
   }
 
   .product-description {
-  max-height: 3.6mm;
+  max-height: 4.5mm;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;

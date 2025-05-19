@@ -107,7 +107,12 @@ const handleDeleteItem = (id) => {
 
   const confirmOrder = async (method) => {
     if (!address.trim() || !contactNumber.trim()) {
-      alert('Missing Info: Please enter both address and contact number.');
+          await Swal.fire({
+          title: 'Missing Info!',
+          text: `Please enter both address and contact number.`,
+          icon: 'warning',
+          confirmButtonText: 'Okay',
+          });
       return;
     }
 
@@ -128,8 +133,6 @@ const handleDeleteItem = (id) => {
   status: 'pending',
   created_at: new Date().toISOString()
 };
-
-    alert('Submitting order: ' + JSON.stringify(orderPayload));
 
     const { data: orderInsert, error: orderError } = await supabase
       .from('orders')
@@ -199,7 +202,7 @@ const handleDeleteItem = (id) => {
   return (
     <div className="cart-container">
       <div className="cart-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>&lt;</button>
+        <button className="back-btns" onClick={() => navigate(-1)}>&lt;</button>
         <h2 className="cart-title">Shopping cart ({cartItems.length})</h2>
       </div>
 

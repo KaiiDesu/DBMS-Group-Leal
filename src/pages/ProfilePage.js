@@ -193,29 +193,8 @@ export default function ProfilePage() {
               <button className="save-btn" onClick={handleSave}>Save</button>
             </div>
 
-            {/* VERTICAL DIVIDER */}}
+            {/* VERTICAL DIVIDER */}
             <div className="profile-divider" />
-
-            {/* RIGHT SIDE AVATAR UPLOAD */}
-            <div className="profile-right">
-              <div className="upload-area" onClick={() => document.getElementById('imageUpload').click()}>
-                {image
-                  ? <img src={image} alt="avatar" className="avatar-preview" />
-                  : <div className="placeholder-icon">+</div>
-                }
-                <input
-                  type="file"
-                  id="imageUpload"
-                  accept="image/png, image/jpeg"
-                  onChange={handleImageUpload}
-                  hidden
-                />
-              </div>
-              <p className="upload-info">
-                File Size: maximum 1MB<br />
-                File Extension: .JPEG, .PNG
-              </p>
-            </div>
           </div>
         </div>
       </div>

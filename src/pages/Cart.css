@@ -339,10 +339,11 @@
 }
 
 .continue-btn,
-.back-btn {
+.back-btns {
   padding: 10px;
   font-size: 16px;
   border-radius: 6px;
+  width: 60px;
   cursor: pointer;
   border: none;
 }
@@ -350,12 +351,13 @@
 .continue-btn {
   background: #000054;
   color: white;
+  width: 200px;
 }
 
-.back-btn {
+.back-btns {
   background: transparent;
-  color: #000054;
-  border: 2px solid #000054;
+  color: #ffffff;
+  border: 2px solid #ffffff;
 }
 
 .continue-btn:hover {
