@@ -41,10 +41,6 @@ const PolicyPage = () => {
         <p>We value your privacy. Your data is securely stored and will never be shared with third parties without consent.</p>
       </button>
 
-      <button>
-        <h2>Shipping & Delivery</h2>
-        <p>Delivery is available nationwide. Standard shipping fees apply. Orders are processed within 1-2 business days after verification.</p>
-      </button>
     </div>
   );
 };
