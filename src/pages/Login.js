@@ -171,7 +171,21 @@ useEffect(() => {
   
 if (formType === 'signup') {
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
-  if (signUpError) return alert('Signup failed: ' + signUpError.message);
+  if (signUpError) {
+  const isDuplicate = signUpError.message.toLowerCase().includes('user already registered');
+  await Swal.fire({
+    title: isDuplicate ? 'Email Already Registered' : 'Signup Failed',
+    text: isDuplicate
+      ? 'This email is already in use. Please use a different one or log in instead.'
+      : signUpError.message,
+    icon: isDuplicate ? 'warning' : 'error',
+    confirmButtonText: 'Okay',
+    customClass: {
+      popup: isDuplicate ? 'swal2-login-warning' : 'swal2-login-error'
+    }
+  });
+  return;
+}
 
     const userId = signUpData.user?.id || signUpData.session?.user?.id;
     if (!userId) return alert('Signup succeeded but no user ID found.');
@@ -289,6 +303,8 @@ if (formType === 'signup') {
           .select('*')
           .eq('id', user.id)
           .single();
+
+          //.select ('first_name, last_name, email, phone_number')
 
         if (!profile || profileError) {
           const { data: pendingUser, error: pendingError } = await supabase

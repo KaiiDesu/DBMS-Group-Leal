@@ -83,10 +83,10 @@ const handleSubmit = async (isPublish) => {
   if (!imageUrl) return;
 
   const { error } = await supabase.from('products').insert([{
-    name: productName,
-    description: productDescription,
-    price: parseFloat(productPrice),
-    quantity: parseInt(productQuantity),
+    name: productName, //vape number 1
+    description: productDescription, //isang hipak sakit agad
+    price: parseFloat(productPrice), //100
+    quantity: parseInt(productQuantity), //100
     image_url: imageUrl,
     is_sold_out: !isPublish,
   }]);
